@@ -257,9 +257,6 @@
 		***/		
 		public static function sendEmail($to_email, $from_email, $from_name, $subject, $message, array $additional_headers = array()) {
 
-			include_once(TOOLKIT . '/class.email.php');
-
-			
 			$email = new Email();
 			
 			if (!empty($additional_headers)) {

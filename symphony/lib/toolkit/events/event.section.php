@@ -195,22 +195,22 @@
 
 				else{
 					
-					include_once(TOOLKIT . '/class.email.php');
-
 					$email = new Email();
 
 					foreach($fields['recipient'] as $r){
-
-						list($recipient, $name) = array_values($r);
-
-						$email->recipient = $recipient;
-						$email->sender_name = $fields['sender-name'];
-						$email->sender_email_address = $fields['sender-email'];
-
-						$email->message = str_replace('<!-- RECIPIENT NAME -->', $name, $body);
-						$email->subject = $fields['subject'];
-
+						
+						// Huib: Exceptions are also thrown in the settings functions, not only in the send function.
+						// Those Exceptions should be caught too.
 						try{
+							list($recipient, $name) = array_values($r);
+
+							$email->recipient = $recipient;
+							$email->sender_name = $fields['sender-name'];
+							$email->sender_email_address = $fields['sender-email'];
+
+							$email->message = str_replace('<!-- RECIPIENT NAME -->', $name, $body);
+							$email->subject = $fields['subject'];
+
 							$email->send();
 						}
 						catch(Exception $e){

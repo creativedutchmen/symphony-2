@@ -14,6 +14,7 @@
 	require_once(TOOLKIT . '/class.general.php');
 	require_once(TOOLKIT . '/class.profiler.php');
 	require_once(TOOLKIT . '/class.author.php');
+	require_once(TOOLKIT . '/class.email.php');
 
 	require_once(TOOLKIT . '/class.authormanager.php');	
 	require_once(TOOLKIT . '/class.extensionmanager.php');
