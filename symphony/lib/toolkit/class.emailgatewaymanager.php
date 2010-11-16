@@ -1,6 +1,8 @@
 <?php
 
-
+	require_once(TOOLKIT . '/class.emailgateway.php');
+	require_once(TOOLKIT . '/class.manager.php');
+	
     Class EmailGatewayManager extends Manager{
 		
 		function setDefaultGateway($name){
