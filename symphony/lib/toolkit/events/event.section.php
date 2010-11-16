@@ -197,9 +197,7 @@
 					
 					include_once(TOOLKIT . '/class.email.php');
 
-					$driver = Symphony::Configuration()->get('driver', 'email');
-
-					$email = Email::create(strlen(trim($driver)) > 0 ? $driver : NULL);
+					$email = new Email();
 
 					foreach($fields['recipient'] as $r){
 
