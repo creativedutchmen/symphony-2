@@ -1,11 +1,6 @@
 <?php
-	
-	Class EmailException extends Exception{
-	}
-	
-	Class Email{
-		
-		private static $drivers;
+
+	Class SendmailGateway extends EmailGateway{
 		
 		protected $headers;
 		protected $recipient;
@@ -14,53 +9,35 @@
 		protected $subject;
 		protected $message;
 		
-		public static function create($driver=NULL){
-			if(is_null($driver)) return new self;
-			
-			elseif(!isset(self::$drivers[$driver])){
-				self::$drivers[$driver] = include_once(sprintf('%s/%s', EXTENSIONS, $driver));
-			}
-
-			return new self::$drivers[$driver];
-		}
-		
 		public function __construct(){
-			self::$drivers = array();
 			$this->headers = array();
 			$this->recipient = $this->sender_name  = $this->sender_email_address = $this->subject = $this->message = NULL;
 		}
 		
-		public function validate(){
-			if (eregi("(\r|\n)", $this->sender_name) || eregi("(\r|\n)", $this->sender_email_address)){
-				throw new EmailException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
+		public function setFrom($sender_email_adress, $sender_name){
+			if (eregi("(\r|\n)", $sender_name) || (eregi("(\r|\n)", $sender_email_address)){
+				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
 			}
-			
-			// Make sure the Message, Recipient, Sender Name and Sender Email values are set
-			if(strlen(trim($this->message)) <= 0){
-				throw new EmailException('Email message cannot be empty.');
+			else{
+				$this->sender_email_adress = $sender_email_adress;
+				$this->sender_name = $sender_name;
 			}
-			
-			elseif(strlen(trim($this->subject)) <= 0){
-				throw new EmailException('Email subject cannot be empty.');
-			}
-			
-			elseif(strlen(trim($this->sender_name)) <= 0){
-				throw new EmailException('Sender name cannot be empty.');
-			}
-			
-			elseif(strlen(trim($this->sender_email_address)) <= 0){
-				throw new EmailException('Sender email address cannot be empty.');
-			}
-			
-			return true;
 		}
-
+		
+		public function setRecipient($recipient_email_adress, $recipient_name = NULL){
+			
+		}
+		
 		public function send(){
 			
 			$this->validate();
 			
 			$this->subject = self::encodeHeader($this->subject, 'UTF-8');
 			$this->sender_name = self::encodeHeader($this->sender_name, 'UTF-8');
+			
+			// Huib: Not really a fan of this approach.
+			// I would prefer the default settings to be set in the header definition of this class,
+			// then permit the setHeader function to override those settings.
 			
 			$default_headers = array(
 				'Return-Path'	=> $this->sender_email_address,
@@ -93,10 +70,17 @@
 			$result = mail($this->recipient, $this->subject, @wordwrap($this->message, 70), @implode(self::CRLF, $headers) . self::CRLF, "-f{$this->sender_email_address}");
 			
 			if($result !== true){
-				throw new EmailException('Email failed to send. Please check input.');
+				throw new EmailGatewayException('Email failed to send. Please check input.');
 			}
 			
 			return true;
+		}
+		
+		public function appendHeader($name, $value, $replace=true){
+			if($replace === false && array_key_exists($name, $this->headers)){
+				throw new EmailGatewayException("The header '{$name}' has already been set.");
+			}
+			$this->headers[$name] = $value;
 		}
 
 
@@ -128,19 +112,44 @@
 		    return $input;
 		}
 		
+		// Huib: Why should this be public?
+		public function validate(){
+			// Huib: Added this check to the place the 
+			if (eregi("(\r|\n)", $this->sender_name) || eregi("(\r|\n)", $this->sender_email_address)){
+				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
+			}
+			
+			// Make sure the Message, Recipient, Sender Name and Sender Email values are set
+			if(strlen(trim($this->message)) <= 0){
+				throw new EmailGatewayException('Email message cannot be empty.');
+			}
+			
+			elseif(strlen(trim($this->subject)) <= 0){
+				throw new EmailGatewayException('Email subject cannot be empty.');
+			}
+			
+			elseif(strlen(trim($this->sender_name)) <= 0){
+				throw new EmailGatewayException('Sender name cannot be empty.');
+			}
+			
+			elseif(strlen(trim($this->sender_email_address)) <= 0){
+				throw new EmailGatewayException('Sender email address cannot be empty.');
+			}
+			
+			elseif(strlen(trim($this->recipient)) <= 0){
+				throw new EmailGatewayException('Recipient email address cannot be empty.');
+			}
+			
+			return true;
+		}
+		
 		public function __set($name, $value){
-			if(!property_exists($this, $name)){
-				throw new EmailException("The property '{$name}' does not exist so cannot be set.");
+			if(method_exists(__class__, 'set'.ucfirst(strtolower($name))){
+				return $this->$name($value);
 			}
-			$this->$name = $value;
-		}
-		
-		public function appendHeader($name, $value, $replace=true){
-			if($replace === false && array_key_exists($name, $this->headers)){
-				throw new EmailException("The header '{$name}' has already been set.");
+			else{
+				throw new EmailGatewayException('No method has been specified to set '.$name);
 			}
-			$this->headers[$name] = $value;
 		}
-		
 	}
 	
