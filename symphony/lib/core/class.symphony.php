@@ -17,6 +17,7 @@
 
 	require_once(TOOLKIT . '/class.authormanager.php');	
 	require_once(TOOLKIT . '/class.extensionmanager.php');
+	require_once(TOOLKIT . '/class.emailgatewaymanager.php');
 		
 	Abstract Class Symphony implements Singleton{
 		
@@ -31,6 +32,7 @@
 		public $Cookie;
 		public $Author;
 		public $ExtensionManager;
+		public $EmailGatewayManager;
 		
 		protected static $_instance;
 		
@@ -70,6 +72,7 @@
 			$this->initialiseCookie();
 			$this->initialiseDatabase();
 			$this->initialiseExtensionManager();
+			$this->initialiseEmailGatewayManager();
 			
 			if(!self::isLoggedIn()){
 				GenericExceptionHandler::$enabled = false;
@@ -102,6 +105,13 @@
 			}
 		}
 		
+		public function initialiseEmailGatewayManager(){
+			$this->EmailGatewayManager = new EmailGatewayManager($this);
+			
+			if(!($this->EmailGatewayManager instanceof EmailGatewayManager)){
+				throw new SymphonyErrorPage('Error creating Symphony email gateway manager.');
+			}
+		}		
 		
 		public static function Configuration(){
 			return self::$Configuration;

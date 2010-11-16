@@ -258,7 +258,7 @@
 
 									if($can_access_child) {
 										
-										## Make sure preferences menu only shows if multiple languages or extension preferences are available
+										## Make sure preferences menu only shows if multiple languages, multiple email-gateways or extension preferences are available
 										if($c['name'] == __('Preferences') && $n['name'] == __('System')){
 											$extensions = Symphony::Database()->fetch("
 													SELECT * 
@@ -267,7 +267,8 @@
 											);
 
 											$l = Lang::getAvailableLanguages(new ExtensionManager($this->_Parent));
-											if(count($l) == 1 && (!is_array($extensions) || empty($extensions))){
+											$e = Administration::instance()->EmailGatewayManager->listAll();
+											if(count($l) == 1 && (!is_array($extensions) || empty($extensions)) && (count($e) <= 1)){
 												continue;
 											}
 											
