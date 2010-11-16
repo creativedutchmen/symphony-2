@@ -11,6 +11,17 @@
 		protected $subject;
 		protected $message;
 		
+		public function about(){
+			return array(
+				'name' => 'Sendmail (default)',
+				'author' => array(
+					'name' => 'Alistair',
+				),
+				'version' => '1.0',
+				'release-date' => '2010-10-18T10:44:58+00:00'
+			);	
+		}
+		
 		public function __construct(){
 			$this->headers = array();
 			$this->recipient = $this->sender_name  = $this->sender_email_address = $this->subject = $this->message = NULL;

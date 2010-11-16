@@ -4,7 +4,7 @@
     Class EmailGatewayManager extends Manager{
 		
 		function setDefaultGateway($name){
-			if($this->__find($name){
+			if($this->__find($name)){
 				Symphony::Configuration()->set('default_gateway', $name, 'Email');
 				$this->_Parent->saveConfig();
 			}

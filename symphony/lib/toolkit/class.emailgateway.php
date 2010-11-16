@@ -57,7 +57,7 @@
 		}
 		
 		public function __set($name, $value){	
-			if(method_exists(__CLASS__, 'set'.$this->__toCamel($name, true)){	
+			if(method_exists(__CLASS__, 'set'.$this->__toCamel($name, true))){	
 				return $this->{'set'.$this->__toCamel($name, true)}($value);
 			}
 			else{
@@ -77,7 +77,7 @@
 			return implode('', $a);
 		}
 		
-		private functon __fromCamel($string){
+		private function __fromCamel($string){
 			$string[0] = strtolower($string[0]);
 			$func = create_function('$c', 'return "_" . strtolower($c[1]);');
 			return preg_replace_callback('/([A-Z])/', $func, $str);

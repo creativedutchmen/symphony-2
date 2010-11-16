@@ -1,6 +1,7 @@
 <?php
 	
 	require_once(TOOLKIT . '/class.administrationpage.php');
+	require_once(TOOLKIT . '/class.emailgatewaymanager.php');
 	
 	class contentSystemPreferences extends AdministrationPage {
 		public function __construct(&$parent){
@@ -26,6 +27,29 @@
 		    } else if (isset($this->_context[0]) && $this->_context[0] == 'success') {
 		    	$this->pageAlert(__('Preferences saved.'), Alert::SUCCESS);
 		    }
+			
+			//Get available EmailGateways
+			$email_gateway_manager = new EmailGatewayManager($this);
+			$email_gateways = $email_gateway_manager->listAll();
+			if(count($email_gateways) > 1){
+				$group = new XMLElement('fieldset');
+				$group->setAttribute('class', 'settings');
+				$group->appendChild(new XMLElement('legend', __('Email Gateway')));			
+				$label = Widget::Label();
+				
+				// Get gateway names
+				asort($email_gateways); 
+				
+				foreach($email_gateways as $handle => $details) {
+					$options[] = array($handle, $handle == Symphony::Configuration()->get('default_gateway', 'Email'), $details['name']);
+				}
+				$select = Widget::Select('settings[Email][default_gateway]', $options);			
+				$label->appendChild($select);
+				$group->appendChild($label);			
+				$group->appendChild(new XMLElement('p', __('The core will use this gateway to send email. More gateways can be installed using extensions.'), array('class' => 'help')));
+				// Append email gateway selection
+				$this->Form->appendChild($group);
+			}
 		    
 		    // Get available languages
 		    $languages = Lang::getAvailableLanguages(new ExtensionManager(Administration::instance()));
