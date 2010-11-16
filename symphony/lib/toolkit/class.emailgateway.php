@@ -19,22 +19,68 @@
 		public function send(){
 		}
 		
-		public function setFrom(){
+		public function setFrom($email, $name){
+			$this->setSenderEmailAdress($email);
+			$this->setSenderName($name);
 		}
 		
-		public function setRecipient(){
+		public function setSenderEmailAdress($email){
+			//TODO: sanitizing and security checking
+			$this->sender_email_adress = $email;
 		}
 		
-		public function setMessage(){
+		public function setSenderName($name){
+			//TODO: sanitizing and security checking
+			$this->sender_name = $name;
 		}
 		
-		public function setSubject(){
+		public function setRecipient($email){
+			//TODO: sanitizing and security checking
+			$this->recipient = $email;
 		}
 		
-		public function appendHeader(){
+		public function setMessage($message){
+			//TODO: sanitizing and security checking
+			$this->message = $message;
 		}
 		
-		public function __set(){
+		public function setSubject($subject){
+			//TODO: sanitizing and security checking;
+			$this->subject = $subject;
+		}
+		
+		public function appendHeader($name, $value, $replace=true){
+			if($replace === false && array_key_exists($name, $this->headers)){
+				throw new EmailException("The header '{$name}' has already been set.");
+			}
+			$this->headers[$name] = $value;
+		}
+		
+		public function __set($name, $value){	
+			if(method_exists(__CLASS__, 'set'.$this->__toCamel($name, true)){	
+				return $this->{'set'.$this->__toCamel($name, true)}($value);
+			}
+			else{
+				throw new EmailGatewayException('The '.__CLASS__.' gateway does not support the use of '.$name);
+			}
+		}
+		
+		
+		// Huib: to solve the differences in naming between methods and properties.
+		private function __toCamel($string, $caseFirst = false){
+			$string = strtolower($string);
+			$a = explode('_', $string);
+			$a = array_map(ucfirst, $a);
+			if(!$caseFirst){
+				$a[0] = lcfirst($a[0]);
+			}
+			return implode('', $a);
+		}
+		
+		private functon __fromCamel($string){
+			$string[0] = strtolower($string[0]);
+			$func = create_function('$c', 'return "_" . strtolower($c[1]);');
+			return preg_replace_callback('/([A-Z])/', $func, $str);
 		}
 		
 	}
