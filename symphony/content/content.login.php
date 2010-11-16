@@ -204,9 +204,8 @@
 
 						include_once(TOOLKIT . '/class.email.php');
 
-						$driver = Symphony::Configuration()->get('driver', 'email');
 						try{
-							$email = Email::create(strlen(trim($driver)) > 0 ? $driver : NULL);
+							$email = new Email();
 
 							$email->recipient = $author['email'];
 							$email->sender_name = __('Symphony Concierge');
@@ -292,11 +291,9 @@
 					$newpass = General::generatePassword();
 
 					include_once(TOOLKIT . '/class.email.php');
-
-					$driver = Symphony::Configuration()->get('driver', 'email');
 					
 					try{
-						$email = Email::create(strlen(trim($driver)) > 0 ? $driver : NULL);
+						$email = new Email();
 
 						$email->recipient = $author['email'];
 						$email->sender_email_address = 'noreply@symphony-cms.com';
