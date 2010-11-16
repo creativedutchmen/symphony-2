@@ -114,7 +114,7 @@
 		
 		// Huib: Why should this be public?
 		public function validate(){
-			// Huib: Added this check to the place the 
+			// Huib: Added this check to the place the data is entered, instead of when it is used.
 			if (eregi("(\r|\n)", $this->sender_name) || eregi("(\r|\n)", $this->sender_email_address)){
 				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
 			}

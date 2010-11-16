@@ -2,6 +2,26 @@
 
 
     Class EmailGatewayManager extends Manager{
+		
+		function setDefaultGateway($name){
+			if($this->__find($name){
+				Symphony::Configuration()->set('default_gateway', $name, 'Email');
+				$this->_Parent->saveConfig();
+			}
+			else{
+				throw new EmailGatewayException('This gateway can not be found. Can not save as default.');
+			}
+		}
+		
+		function getDefaultGateway(){
+			$gateway = Symphony::Configuration()->get('default_gateway', 'Email');
+			if($gateway){
+				return $gateway;
+			}
+			else{
+				throw new EmailGatewayManagerException('The default gateway has not been set.');
+			}
+		}
 	    
 	    function __find($name){
 		 
@@ -22,7 +42,7 @@
 	    }
 	            
         function __getClassName($name){
-	        return 'email' . $name;
+	        return $name . 'Gateway';
         }
         
         function __getClassPath($name){
@@ -30,11 +50,11 @@
         }
         
         function __getDriverPath($name){	        
-	        return $this->__getClassPath($name) . "/formatter.$name.php";
+	        return $this->__getClassPath($name) . "/email.$name.php";
         }          
 
 		function __getHandleFromFilename($filename){
-			return preg_replace(array('/^formatter./i', '/.php$/i'), '', $filename);
+			return preg_replace(array('/^email./i', '/.php$/i'), '', $filename);
 		}
         
         function listAll(){
@@ -80,7 +100,7 @@
 	        $path = $this->__getDriverPath($name);
 
 	        if(!is_file($path)){
-		        trigger_error(__('Could not find Text Formatter <code>%s</code>. If the Text Formatter was provided by an Extensions, ensure that it is installed, and enabled.', array($name)), E_USER_ERROR);
+		        trigger_error(__('Could not find Email Gateway <code>%s</code>. If the Email Gateway was provided by an Extensions, ensure that it is installed, and enabled.', array($name)), E_USER_ERROR);
 		        return false;
 	        }
 	        
