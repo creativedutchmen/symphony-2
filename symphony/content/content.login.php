@@ -202,8 +202,6 @@
 							Symphony::Database()->insert(array('author_id' => $author['id'], 'token' => $token, 'expiry' => DateTimeObj::getGMT('c', time() + (120 * 60))), 'tbl_forgotpass');					
 						}
 
-						include_once(TOOLKIT . '/class.email.php');
-
 						try{
 							$email = new Email();
 
@@ -290,8 +288,6 @@
 
 					$newpass = General::generatePassword();
 
-					include_once(TOOLKIT . '/class.email.php');
-					
 					try{
 						$email = new Email();
 
