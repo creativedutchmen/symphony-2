@@ -1,5 +1,7 @@
 <?php
 
+	require_once(TOOLKIT . '/class.emailgateway.php');
+	
 	Class SendmailGateway extends EmailGateway{
 		
 		protected $headers;
@@ -12,20 +14,6 @@
 		public function __construct(){
 			$this->headers = array();
 			$this->recipient = $this->sender_name  = $this->sender_email_address = $this->subject = $this->message = NULL;
-		}
-		
-		public function setFrom($sender_email_adress, $sender_name){
-			if (eregi("(\r|\n)", $sender_name) || (eregi("(\r|\n)", $sender_email_address)){
-				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
-			}
-			else{
-				$this->sender_email_adress = $sender_email_adress;
-				$this->sender_name = $sender_name;
-			}
-		}
-		
-		public function setRecipient($recipient_email_adress, $recipient_name = NULL){
-			
 		}
 		
 		public function send(){
@@ -141,15 +129,6 @@
 			}
 			
 			return true;
-		}
-		
-		public function __set($name, $value){
-			if(method_exists(__class__, 'set'.ucfirst(strtolower($name))){
-				return $this->$name($value);
-			}
-			else{
-				throw new EmailGatewayException('No method has been specified to set '.$name);
-			}
 		}
 	}
 	
