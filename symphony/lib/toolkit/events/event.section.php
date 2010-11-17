@@ -205,8 +205,12 @@
 							list($recipient, $name) = array_values($r);
 
 							$email->recipient = $recipient;
-							$email->sender_name = $fields['sender-name'];
-							$email->sender_email_address = $fields['sender-email'];
+							if($fields['sender_name'] != null){
+								$email->sender_name = $fields['sender-name'];
+							}
+							if($fields['sender_email'] != null){
+								$email->sender_email_address = $fields['sender-email'];
+							}
 
 							$email->message = str_replace('<!-- RECIPIENT NAME -->', $name, $body);
 							$email->subject = $fields['subject'];

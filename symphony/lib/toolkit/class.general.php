@@ -267,8 +267,6 @@
 			}
 			
 			$email->recipient = $to_email;
-			$email->sender_name = $from_name;
-			$email->sender_email_address = $from_email;
 
 			$email->message = $message;
 			$email->subject = $subject;

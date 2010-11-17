@@ -41,7 +41,7 @@
 				asort($email_gateways); 
 				
 				foreach($email_gateways as $handle => $details) {
-					$options[] = array($handle, $handle == Symphony::Configuration()->get('default_gateway', 'Email'), $details['name']);
+					$options[] = array($handle, $handle == $email_gateway_manager->getDefaultGateway(), $details['name']);
 				}
 				$select = Widget::Select('settings[Email][default_gateway]', $options);			
 				$label->appendChild($select);
@@ -50,6 +50,12 @@
 				// Append email gateway selection
 				$this->Form->appendChild($group);
 			}
+			
+			$default_gateway_name = $email_gateway_manager->__getClassName($email_gateway_manager->getDefaultGateway());
+			$default_gateway = new $default_gateway_name;
+			$gateway_settings = $default_gateway->getPreferencesPane();
+			
+			$this->Form->appendChild($gateway_settings);
 		    
 		    // Get available languages
 		    $languages = Lang::getAvailableLanguages(new ExtensionManager(Administration::instance()));

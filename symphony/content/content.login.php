@@ -204,9 +204,7 @@
 
 						try{
 							$email = new Email();
-
-							$email->recipient = $author['email'];
-							$email->sender_name = __('Symphony Concierge');
+							
 							$email->sender_email_address = Symphony::Database()->fetchVar('email', 0, "SELECT `email` FROM `tbl_authors` ORDER BY `id` ASC LIMIT 1");
 							$email->subject = __('New Symphony Account Password');
 							$email->message = __('Hi %s,', array($author['first_name'])) . self::CRLF .
@@ -292,8 +290,6 @@
 						$email = new Email();
 
 						$email->recipient = $author['email'];
-						$email->sender_email_address = 'noreply@symphony-cms.com';
-						$email->sender_name = 'Symphony Concierge';
 						$email->subject = 'RE: New Symphony Account Password';
 						$email->message = 'Hi ' . $author['first_name']. ',' . self::CRLF .
 						"As requested, here is your new Symphony Author Password for '" . URL . "'" . self::CRLF . "	{$newpass}" . self::CRLF . self::CRLF .

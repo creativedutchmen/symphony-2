@@ -14,6 +14,15 @@
 		protected $message;
 		
 		public function __construct(){
+			$this->setSenderEmailAddress((Symphony::Configuration()->get('from_email', 'Email')) ? Symphony::Configuration()->get('from_email', 'Email') : 'noreply@' . HTTP_HOST);
+			if(!Symphony::Configuration()->get('from_name', 'Email')){
+				$author_manager = new AuthorManager();
+				$author = $author_manager->fetch('user_type','ASC', 1);
+				$this->setSenderName($author[0]->get('first_name') . ' ' . $author[0]->get('last_name'));
+			}
+			else{
+				$this->setSenderName(Symphony::Configuration()->get('from_name', 'Email'));
+			}
 		}
 		
 		public function send(){
@@ -24,9 +33,9 @@
 			$this->setSenderName($name);
 		}
 		
-		public function setSenderEmailAdress($email){
+		public function setSenderEmailAddress($email){
 			//TODO: sanitizing and security checking
-			$this->sender_email_adress = $email;
+			$this->sender_email_address = $email;
 		}
 		
 		public function setSenderName($name){
@@ -65,6 +74,26 @@
 			}
 		}
 		
+		// The preferences to add to the preferences pane in the admin area.
+		// Must return an XMLElement object.
+		public function getPreferencesPane(){
+			$group = new XMLElement('fieldset');
+			$group->setAttribute('class', 'settings');
+			$group->appendChild(new XMLElement('legend', __('Sendmail Settings')));		
+	
+			$label = Widget::Label('Send email from adress:');			
+			$input = Widget::Input('settings[Email][from_email]', $this->sender_email_address);			
+			$label->appendChild($input);
+			$group->appendChild($label);	
+			
+			$label = Widget::Label('Send email from name:');			
+			$input = Widget::Input('settings[Email][from_name]', $this->sender_name);			
+			$label->appendChild($input);
+			$group->appendChild($label);
+		
+			$group->appendChild(new XMLElement('p', __('The Sendmail gateway will use these settings to send email. Leave empty if you are not sure.'), array('class' => 'help')));
+			return $group;
+		}
 		
 		// Huib: to solve the differences in naming between methods and properties.
 		private function __toCamel($string, $caseFirst = false){

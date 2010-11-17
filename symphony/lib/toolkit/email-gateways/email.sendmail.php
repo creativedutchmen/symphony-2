@@ -11,6 +11,10 @@
 		protected $subject;
 		protected $message;
 		
+		public function __construct(){
+			parent::__construct();
+		}
+		
 		public function about(){
 			return array(
 				'name' => 'Sendmail (default)',
@@ -22,21 +26,13 @@
 			);	
 		}
 		
-		public function __construct(){
-			$this->headers = array();
-			$this->recipient = $this->sender_name  = $this->sender_email_address = $this->subject = $this->message = NULL;
-		}
-		
+
 		public function send(){
 			
 			$this->validate();
 			
 			$this->subject = self::encodeHeader($this->subject, 'UTF-8');
 			$this->sender_name = self::encodeHeader($this->sender_name, 'UTF-8');
-			
-			// Huib: Not really a fan of this approach.
-			// I would prefer the default settings to be set in the header definition of this class,
-			// then permit the setHeader function to override those settings.
 			
 			$default_headers = array(
 				'Return-Path'	=> $this->sender_email_address,
