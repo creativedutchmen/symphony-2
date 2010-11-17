@@ -76,10 +76,13 @@
 		
 		// The preferences to add to the preferences pane in the admin area.
 		// Must return an XMLElement object.
+		
+		// The from_email and from_name can be kept between different gateways.
+		// Reuse of this example is encouraged.
 		public function getPreferencesPane(){
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Sendmail Settings')));		
+			$group->appendChild(new XMLElement('legend', __('Mail Settings')));		
 	
 			$label = Widget::Label('Send email from adress:');			
 			$input = Widget::Input('settings[Email][from_email]', $this->sender_email_address);			
@@ -91,7 +94,7 @@
 			$label->appendChild($input);
 			$group->appendChild($label);
 		
-			$group->appendChild(new XMLElement('p', __('The Sendmail gateway will use these settings to send email. Leave empty if you are not sure.'), array('class' => 'help')));
+			$group->appendChild(new XMLElement('p', __('All email gateways will use these settings to send email. Leave empty if you are not sure.'), array('class' => 'help')));
 			return $group;
 		}
 		
