@@ -55,7 +55,9 @@
 			$default_gateway = new $default_gateway_name;
 			$gateway_settings = $default_gateway->getPreferencesPane();
 			
-			$this->Form->appendChild($gateway_settings);
+			if(is_a($gateway_settings, 'XMLElement')){
+				$this->Form->appendChild($gateway_settings);
+			}
 		    
 		    // Get available languages
 		    $languages = Lang::getAvailableLanguages(new ExtensionManager(Administration::instance()));
