@@ -258,22 +258,7 @@
 
 									if($can_access_child) {
 										
-										## Make sure preferences menu only shows if multiple languages, multiple email-gateways or extension preferences are available
-										if($c['name'] == __('Preferences') && $n['name'] == __('System')){
-											$extensions = Symphony::Database()->fetch("
-													SELECT * 
-													FROM `tbl_extensions_delegates` 
-													WHERE `delegate` = 'AddCustomPreferenceFieldsets'"
-											);
-
-											$l = Lang::getAvailableLanguages(new ExtensionManager($this->_Parent));
-											$e = Administration::instance()->EmailGatewayManager->listAll();
-											if(count($l) == 1 && (!is_array($extensions) || empty($extensions)) && (count($e) <= 1)){
-												continue;
-											}
-											
-										}
-										##
+										// Since the email gateways will always add settings, the preferences page should always be shown.
 										
 										$xChild = new XMLElement('li');
 										$xLink = new XMLElement('a', $c['name']);
