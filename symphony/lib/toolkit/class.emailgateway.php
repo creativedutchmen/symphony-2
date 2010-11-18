@@ -6,7 +6,7 @@
 	Abstract Class EmailGateway{
 		
 		//minimal properties of any email sent.
-		protected $headers;
+		protected $headers = Array();
 		protected $recipient;
 		protected $sender_name;
 		protected $sender_email_address;
@@ -82,7 +82,7 @@
 		public function getPreferencesPane(){
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Mail Settings')));		
+			$group->appendChild(new XMLElement('legend', __('Email Gateway Settings')));		
 	
 			$label = Widget::Label('Send email from adress:');			
 			$input = Widget::Input('settings[Email][from_email]', $this->sender_email_address);			

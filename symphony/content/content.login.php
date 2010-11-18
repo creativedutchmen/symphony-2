@@ -203,7 +203,7 @@
 						}
 
 						try{
-							$email = new Email();
+							$email = Email::create();
 							
 							$email->sender_email_address = Symphony::Database()->fetchVar('email', 0, "SELECT `email` FROM `tbl_authors` ORDER BY `id` ASC LIMIT 1");
 							$email->subject = __('New Symphony Account Password');
@@ -287,7 +287,7 @@
 					$newpass = General::generatePassword();
 
 					try{
-						$email = new Email();
+						$email = Email::create();
 
 						$email->recipient = $author['email'];
 						$email->subject = 'RE: New Symphony Account Password';

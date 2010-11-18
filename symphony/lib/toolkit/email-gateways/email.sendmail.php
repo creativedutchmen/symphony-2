@@ -4,13 +4,6 @@
 	
 	Class SendmailGateway extends EmailGateway{
 		
-		protected $headers;
-		protected $recipient;
-		protected $sender_name;
-		protected $sender_email_address;
-		protected $subject;
-		protected $message;
-		
 		public function __construct(){
 			parent::__construct();
 		}
@@ -28,6 +21,10 @@
 		
 
 		public function send(){
+			
+			var_dump($this);
+			
+			exit();
 			
 			$this->validate();
 			

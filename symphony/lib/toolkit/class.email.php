@@ -5,29 +5,25 @@
 	
 	include_once(TOOLKIT . '/class.emailgatewaymanager.php');
 	
-	class Email{
+	Abstract class Email{
 		
 		private $gateway;
 	
 		// Will use the gateway set in the preferences when no gateway is set here.
 		// Setting this to a specific gateway should only be used if special features of that gateway are used.
-		function __construct($gateway = null){
+		function create($gateway = null){
 			$email_gateway_manager = new EmailGatewayManager($this);
 			if($gateway){
 				$default_gateway = $email_gateway_manager->find($gateway);
 				if($default_gateway){
-					$this->gateway = $email_gateway_manager->create($default_gateway);
+					return $email_gateway_manager->create($default_gateway);
 				}
 				else{
 					throw new EmailException('Can not find default gateway. Please check if the extension supplying the gateway is still installed, or change settings accordingly');
 				}
 			}
 			else{
-				$this->gateway = $email_gateway_manager->create($email_gateway_manager->getDefaultGateway());
+				return $email_gateway_manager->create($email_gateway_manager->getDefaultGateway());
 			}
 		}
-		
-		function __call($name, $args){
-			return $this->gateway->{$name}($args);
-		}		
 	}

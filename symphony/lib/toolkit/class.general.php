@@ -257,7 +257,7 @@
 		***/		
 		public static function sendEmail($to_email, $from_email, $from_name, $subject, $message, array $additional_headers = array()) {
 
-			$email = new Email();
+			$email = Email::create();
 			
 			if (!empty($additional_headers)) {
 				foreach ($additional_headers as $header => $value) {

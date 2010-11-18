@@ -195,7 +195,7 @@
 
 				else{
 					
-					$email = new Email();
+					$email = Email::create();
 
 					foreach($fields['recipient'] as $r){
 						
