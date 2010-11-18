@@ -217,7 +217,7 @@
 
 							$email->send();
 						}
-						catch(Exception $e){
+						catch(EmailGatewayException $e){
 							$errors[] = $recipient;
 						}
 

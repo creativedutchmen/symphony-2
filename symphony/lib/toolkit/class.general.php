@@ -256,22 +256,27 @@
 
 		***/		
 		public static function sendEmail($to_email, $from_email, $from_name, $subject, $message, array $additional_headers = array()) {
-
-			$email = Email::create();
 			
-			if (!empty($additional_headers)) {
-				foreach ($additional_headers as $header => $value) {
-					$header = preg_replace_callback('/\w+/', create_function('$m', 'if(in_array($m[0], array("MIME", "ID"))) return $m[0]; else return ucfirst($m[0]);'), $header);
-					$email->appendHeader($header, $value);
+			try{
+				$email = Email::create();
+				
+				if (!empty($additional_headers)) {
+					foreach ($additional_headers as $header => $value) {
+						$header = preg_replace_callback('/\w+/', create_function('$m', 'if(in_array($m[0], array("MIME", "ID"))) return $m[0]; else return ucfirst($m[0]);'), $header);
+						$email->appendHeader($header, $value);
+					}
 				}
+				
+				$email->recipient = $to_email;
+
+				$email->message = $message;
+				$email->subject = $subject;
+
+				return $email->send();
 			}
-			
-			$email->recipient = $to_email;
-
-			$email->message = $message;
-			$email->subject = $subject;
-
-			return $email->send();
+			catch(EmailGatewayException $e){
+				throw new SymphonyErrorPage('Error sending email. ' . $e->getMessage());
+			}
 		}
 
 		/***
