@@ -218,7 +218,7 @@
 							$this->_email_sent = true;
 						}
 
-						catch(Exception $e){
+						catch(EmailGatewayException $e){
 							throw new SymphonyErrorPage('Error sending email. ' . $e->getMessage());
 						}
 						
