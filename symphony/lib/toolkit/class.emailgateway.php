@@ -13,6 +13,7 @@
 	/**
 	 * A base class for email gateways.
 	 * All email-gateways should extend this class in order to work.
+	 *
 	 * @todo add validation to all set functions.
 	 */
 	Abstract Class EmailGateway{
@@ -27,6 +28,7 @@
 		/**
 		 * Sets the default sender-email, sender-name from settings.
 		 * The default values can be overwritten by the user.
+		 *
 		 * @return void
 		 */
 		public function __construct(){
@@ -45,6 +47,7 @@
 		 * Sends the actual email.
 		 * This function should be set on the email-gateway itself.
 		 * See the default gateway for an example.
+		 *
 		 * @return void
 		 */
 		public function send(){
@@ -52,6 +55,7 @@
 		
 		/**
 		 * Sets the sender-email and sender-name.
+		 *
 		 * @param string $email
 		 * 	The email-adress emails will be sent from
 		 * @param string $name
@@ -65,6 +69,7 @@
 		
 		/**
 		 * Sets the sender-email.
+		 *
 		 * @param string $email
 		 * 	The email-adress emails will be sent from
 		 * @return void
@@ -76,6 +81,7 @@
 		
 		/**
 		 * Sets the sender-name.
+		 *
 		 * @param string $name
 		 * 	The name emails will be sent from
 		 * @return void
@@ -87,6 +93,7 @@
 		
 		/**
 		 * Sets the recipient.
+		 *
 		 * @param string $email
 		 * 	The email-adress to send the email to.
 		 * @return void
@@ -100,6 +107,7 @@
 		
 		/**
 		 * Sets the message.
+		 *
 		 * @param string $message
 		 * 	The message to be sent. Can be html or text.
 		 * @return void
@@ -111,6 +119,7 @@
 		
 		/**
 		 * Sets the subject.
+		 *
 		 * @param string $subject
 		 * 	The subject that the email will have.
 		 * @return void
@@ -123,6 +132,7 @@
 		/**
 		 * Appends a header to the header list.
 		 * New headers should be presented as a name/value pair.
+		 *
 		 * @param string $name
 		 * 	The header name. Examples are From, X-Sender and Reply-to
 		 * @param string $value
@@ -144,6 +154,7 @@
 		 * Magic function, supplied by php.
 		 * This function will try and find a method of this class, by camelcasing the name, and appending it with set.
 		 * If the function can not be found, an exception will be thrown.
+		 *
 		 * @param string $name
 		 * 	The property name.
 		 * @param string $value
@@ -163,6 +174,7 @@
 		 * The preferences to add to the preferences pane in the admin area.
 		 * The from_email and from_name can be kept between different gateways.
 		 * Reuse (by using the output for the preferences pane) is encouraged.
+		 *
 		 * @return XMLElement
 		 */
 		public function getPreferencesPane(){
@@ -188,6 +200,7 @@
 		 * Internal function to turn underscored variables into camelcase, for use in methods.
 		 * Because Symphony has a difference in naming between properties and methods (underscored vs camelcased)
 		 * and the Email class uses the magic __set function to find property-setting-methods, this conversion is needed.
+		 *
 		 * @param string $string
 		 * 	The string to convert
 		 * @param bool $caseFirst
@@ -207,6 +220,7 @@
 		
 		/**
 		 * The reverse of the __toCamel function.
+		 *
 		 * @param string $string
 		 * 	The string to convert
 		 * @return string
