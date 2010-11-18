@@ -22,10 +22,6 @@
 
 		public function send(){
 			
-			var_dump($this);
-			
-			exit();
-			
 			$this->validate();
 			
 			$this->subject = self::encodeHeader($this->subject, 'UTF-8');
