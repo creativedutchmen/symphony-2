@@ -1,10 +1,24 @@
 <?php
+	
+	/**
+	 * @package toolkit
+	 */
 
 	require_once(TOOLKIT . '/class.emailgateway.php');
 	require_once(TOOLKIT . '/class.manager.php');
 	
+	/**
+	 * A manager to standardize the finding and listing of installed gateways.
+	 */
     Class EmailGatewayManager extends Manager{
 		
+		/**
+		 * Sets the default gateway.
+		 * Will throw an exception if the gateway can not be found.
+		 *
+		 * @param string $name
+		 * @return void
+		 */
 		function setDefaultGateway($name){
 			if($this->__find($name)){
 				Symphony::Configuration()->set('default_gateway', $name, 'Email');
@@ -15,6 +29,12 @@
 			}
 		}
 		
+		/**
+		 * Returns the default gateway.
+		 * Will throw an exception if the gateway can not be found.
+		 *
+		 * @return string
+		 */
 		function getDefaultGateway(){
 			$gateway = Symphony::Configuration()->get('default_gateway', 'Email');
 			if($gateway){
@@ -25,6 +45,15 @@
 			}
 		}
 	    
+		/**
+		 * Finds the gateway by name
+		 *
+		 * @param string $name
+		 * 	The gateway to look for
+		 * @return string|bool
+		 *	If the gateway is found, the path to the folder containing the gateway is returned.
+		 *	If the gateway is not found, false is returned.
+		 */
 	    function __find($name){
 		 
 		    if(is_file(EMAILGATEWAYS . "/email.$name.php")) return EMAILGATEWAYS;
@@ -42,23 +71,57 @@
 	    		    
 		    return false;
 	    }
-	            
+	    
+		/**
+		 * Returns the classname from the gateway name.
+		 * Does not check if the gateway exists.
+		 *
+		 * @param string $name
+		 * @return string
+		 */
         function __getClassName($name){
 	        return $name . 'Gateway';
         }
         
+		/**
+		 * Alias for __find
+		 *
+		 * @param string $name
+		 * @return string|bool
+		 */
         function __getClassPath($name){
 	        return $this->__find($name);
         }
         
+		/**
+		 * Returns the path to the gateway file.
+		 *
+		 * @param string $name
+		 * 	The gateway to look for
+		 * @return string|bool
+		 * @todo fix return if gateway does not exist.
+		 */
         function __getDriverPath($name){	        
 	        return $this->__getClassPath($name) . "/email.$name.php";
         }          
-
+		
+		/**
+		 * Finds the name from the filename.
+		 * Does not check if the gateway exists.
+		 *
+		 * @param string $filename
+		 * @return string|bool
+		 */
 		function __getHandleFromFilename($filename){
 			return preg_replace(array('/^email./i', '/.php$/i'), '', $filename);
 		}
         
+		/**
+		 * Returns an array of all gateways.
+		 * Each item in the array will contain the return value of the about() function of each gateway.
+		 *
+		 * @return array
+		 */
         function listAll(){
 	        
 			$result = array();
@@ -95,7 +158,16 @@
 			ksort($result);
 			return $result;	        
         }
-
+	
+		/**
+		 * Creates a new object from a gateway name.
+		 *
+		 * @param string $name
+		 * 	The gateway to look for
+		 * @return EmailGateway
+		 *	If the gateway is found, an instantiated object is returned.
+		 *	If the gateway is not found, an error is triggered.
+		 */
         function &create($name){
 	        
 	        $classname = $this->__getClassName($name);	        
