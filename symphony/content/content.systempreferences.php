@@ -31,7 +31,7 @@
 			//Get available EmailGateways
 			$email_gateway_manager = new EmailGatewayManager($this);
 			$email_gateways = $email_gateway_manager->listAll();
-			if(count($email_gateways) > 1){
+			if(count($email_gateways) >= 1){
 				$group = new XMLElement('fieldset');
 				$group->setAttribute('class', 'settings');
 				$group->appendChild(new XMLElement('legend', __('Email Gateway')));			
