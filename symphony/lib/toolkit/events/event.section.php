@@ -220,6 +220,9 @@
 						catch(EmailGatewayException $e){
 							$errors[] = $recipient;
 						}
+						catch(EmailException $e){
+							throw new SymphonyErrorPage('Error sending email. ' . $e->getMessage());
+						}
 
 					}
 

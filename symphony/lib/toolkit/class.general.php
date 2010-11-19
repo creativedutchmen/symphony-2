@@ -277,6 +277,9 @@
 			catch(EmailGatewayException $e){
 				throw new SymphonyErrorPage('Error sending email. ' . $e->getMessage());
 			}
+			catch(EmailException $e){
+				throw new SymphonyErrorPage('Error sending email. ' . $e->getMessage());
+			}
 		}
 
 		/***
