@@ -5,7 +5,15 @@
 	Class SendmailGateway extends EmailGateway{
 		
 		public function __construct(){
-			parent::__construct();
+			$this->setSenderEmailAddress((Symphony::Configuration()->get('from_email', 'sendMail')) ? Symphony::Configuration()->get('from_email', 'sendMail') : 'noreply@' . HTTP_HOST);
+			if(!Symphony::Configuration()->get('from_name', 'sendMail')){
+				$author_manager = new AuthorManager();
+				$author = $author_manager->fetch('user_type','ASC', 1);
+				$this->setSenderName($author[0]->get('first_name') . ' ' . $author[0]->get('last_name'));
+			}
+			else{
+				$this->setSenderName(Symphony::Configuration()->get('from_name', 'sendMail'));
+			}
 		}
 		
 		public function about(){
@@ -72,7 +80,27 @@
 		}
 		
 		public function getPreferencesPane(){
-			return parent::getPreferencesPane();
+			$group = new XMLElement('fieldset');
+			$group->setAttribute('class', 'settings');
+			$group->appendChild(new XMLElement('legend', __('Sendmail Gateway Settings')));
+
+			$div = new XMLElement('div');
+			$div->setAttribute('class', 'group');	
+	
+			$label = Widget::Label('Send email from adress:');			
+			$input = Widget::Input('settings[sendMail][from_email]', $this->sender_email_address);			
+			$label->appendChild($input);
+			$div->appendChild($label);	
+			
+			$label = Widget::Label('Send email from name:');			
+			$input = Widget::Input('settings[sendMail][from_name]', $this->sender_name);			
+			$label->appendChild($input);
+			$div->appendChild($label);
+			
+			$group->appendChild($div);
+		
+			$group->appendChild(new XMLElement('p', __('The core will use these default settings to send email. The settings can be overwritten if necessary.'), array('class' => 'help')));
+			return $group;
 		}
 
 

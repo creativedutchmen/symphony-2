@@ -51,13 +51,14 @@
 				$this->Form->appendChild($group);
 			}
 			
-			$default_gateway_name = $email_gateway_manager->__getClassName($email_gateway_manager->getDefaultGateway());
-			$default_gateway = new $default_gateway_name;
-			$gateway_settings = $default_gateway->getPreferencesPane();
+			foreach($email_gateways as $gateway){
+				$gateway_settings = $email_gateway_manager->create($gateway['handle'])->getPreferencesPane();
 			
-			if(is_a($gateway_settings, 'XMLElement')){
-				$this->Form->appendChild($gateway_settings);
+				if(is_a($gateway_settings, 'XMLElement')){
+					$this->Form->appendChild($gateway_settings);
+				}
 			}
+			
 		    
 		    // Get available languages
 		    $languages = Lang::getAvailableLanguages(new ExtensionManager(Administration::instance()));
