@@ -80,6 +80,7 @@
 		}
 		
 		public function getPreferencesPane(){
+			parent::getPreferencesPane();
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
 			$group->appendChild(new XMLElement('legend', __('Sendmail Gateway Settings')));

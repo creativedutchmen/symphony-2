@@ -8,6 +8,20 @@
 	 * The Exception to be thrown by all email gateways.
 	 */
 	class EmailGatewayException extends Exception{
+		
+		/**
+		 * Creates a new exception, and logs the error.
+		 *
+		 * @param string $message
+		 * @param int $code
+		 * @param Exception $previous
+		 *	The previous exception, if nested. see http://www.php.net/manual/en/language.exceptions.extending.php
+		 * @return void
+		 */
+		public function __construct($message, $code = 0, $previous = null){
+			Symphony::$Log->pushToLog('Email Gateway Error: ' . $message, 'Email', true);
+			parent::__construct();
+		}
 	}
 	
 	/**
@@ -132,7 +146,7 @@
 		 */
 		public function appendHeader($name, $value, $replace=true){
 			if($replace === false && array_key_exists($name, $this->headers)){
-				throw new EmailException("The header '{$name}' has already been set.");
+				throw new EmailGatewayException("The header '{$name}' has already been set.");
 			}
 			$this->headers[$name] = $value;
 		}
