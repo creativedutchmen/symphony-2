@@ -205,10 +205,10 @@
 							list($recipient, $name) = array_values($r);
 
 							$email->recipient = $recipient;
-							if($fields['sender_name'] != null){
+							if($fields['sender-name'] != null){
 								$email->sender_name = $fields['sender-name'];
 							}
-							if($fields['sender_email'] != null){
+							if($fields['sender-email'] != null){
 								$email->sender_email_address = $fields['sender-email'];
 							}
 
