@@ -172,8 +172,8 @@
 
 				$fields['subject'] = __sendEmailFindFormValue($fields['subject'], $_POST['fields'], true, __('[Symphony] A new entry was created on %s', array($obj->Configuration->get('sitename', 'general'))));
 				$fields['body'] = __sendEmailFindFormValue($fields['body'], $_POST['fields'], false, NULL, false);
-				$fields['sender-email'] = __sendEmailFindFormValue($fields['sender-email'], $_POST['fields'], true, 'noreply@' . parse_url(URL, PHP_URL_HOST));
-				$fields['sender-name'] = __sendEmailFindFormValue($fields['sender-name'], $_POST['fields'], true, 'Symphony');
+				$fields['sender-email'] = __sendEmailFindFormValue($fields['sender-email'], $_POST['fields'], true, NULL);
+				$fields['sender-name'] = __sendEmailFindFormValue($fields['sender-name'], $_POST['fields'], true, NULL);
 
 				$edit_link = URL.'/symphony/publish/'.$section->get('handle').'/edit/'.$entry->get('id').'/';
 
