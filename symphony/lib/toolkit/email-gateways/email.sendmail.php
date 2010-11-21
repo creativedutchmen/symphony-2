@@ -76,7 +76,7 @@
 			$label->appendChild(Widget::Input('settings[email_sendmail][default_from_name]', $this->sender_name));
 			$div->appendChild($label);
 
-			$label = Widget::Label('Default: From Address');
+			$label = Widget::Label('Default: From Email Address');
 			$label->appendChild(Widget::Input('settings[email_sendmail][default_from_address]', $this->sender_email_address));
 			$div->appendChild($label);
 
