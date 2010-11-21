@@ -67,20 +67,18 @@
 			parent::getPreferencesPane();
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Sendmail Gateway Settings')));
+			$group->appendChild(new XMLElement('legend', __('Email: Sendmail')));
 
 			$div = new XMLElement('div');
 			$div->setAttribute('class', 'group');	
 	
-			$label = Widget::Label('Send email from adress:');			
-			$input = Widget::Input('settings[sendMail][from_email]', $this->sender_email_address);			
-			$label->appendChild($input);
-			$div->appendChild($label);	
-			
-			$label = Widget::Label('Send email from name:');			
-			$input = Widget::Input('settings[sendMail][from_name]', $this->sender_name);			
-			$label->appendChild($input);
+			$label = Widget::Label('Default: From Name');			
+			$label->appendChild(Widget::Input('settings[sendMail][from_name]', $this->sender_name));			
 			$div->appendChild($label);
+			
+			$label = Widget::Label('Default: From Address');			
+			$label->appendChild(Widget::Input('settings[sendMail][from_email]', $this->sender_email_address));			
+			$div->appendChild($label);	
 			
 			$group->appendChild($div);
 		
