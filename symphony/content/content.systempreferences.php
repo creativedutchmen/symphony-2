@@ -38,7 +38,7 @@
 				$label = Widget::Label();
 				
 				// Get gateway names
-				asort($email_gateways); 
+				krsort($email_gateways); 
 				
 				foreach($email_gateways as $handle => $details) {
 					$options[] = array($handle, $handle == $email_gateway_manager->getDefaultGateway(), $details['name']);
