@@ -5,8 +5,8 @@
 	Class SendmailGateway extends EmailGateway{
 		
 		public function __construct(){
-			$this->setSenderEmailAddress(Symphony::Configuration()->get('from_email', 'sendMail') ? Symphony::Configuration()->get('from_email', 'sendMail') : 'noreply@' . HTTP_HOST);
-			$this->setSenderName(Symphony::Configuration()->get('from_name', 'sendMail') ? Symphony::Configuration()->get('from_name', 'sendMail') : 'Symphony');
+			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_sendmail') ? Symphony::Configuration()->get('default_from_address', 'email_sendmail') : 'noreply@' . HTTP_HOST);
+			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_sendmail') ? Symphony::Configuration()->get('default_from_name', 'email_sendmail') : 'Symphony');
 		}
 		
 		public function about(){
@@ -73,11 +73,11 @@
 			$div->setAttribute('class', 'group');	
 	
 			$label = Widget::Label('Default: From Name');			
-			$label->appendChild(Widget::Input('settings[sendMail][from_name]', $this->sender_name));			
+			$label->appendChild(Widget::Input('settings[email_sendmail][default_from_name]', $this->sender_name));			
 			$div->appendChild($label);
 			
 			$label = Widget::Label('Default: From Address');			
-			$label->appendChild(Widget::Input('settings[sendMail][from_email]', $this->sender_email_address));			
+			$label->appendChild(Widget::Input('settings[email_sendmail][default_from_address]', $this->sender_email_address));			
 			$div->appendChild($label);	
 			
 			$group->appendChild($div);
