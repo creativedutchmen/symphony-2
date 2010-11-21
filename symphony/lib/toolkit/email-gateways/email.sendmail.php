@@ -49,7 +49,7 @@
 			$this->message = $this->qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 
-			$result = mail($this->recipient, $this->subject, @wordwrap($this->message, 70), @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
+			$result = mail($this->recipient, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 
 			if($result !== true){
 				throw new EmailGatewayException('Email failed to send. Please check input.');
