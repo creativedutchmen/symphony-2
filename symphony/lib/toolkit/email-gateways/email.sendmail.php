@@ -5,15 +5,8 @@
 	Class SendmailGateway extends EmailGateway{
 		
 		public function __construct(){
-			$this->setSenderEmailAddress((Symphony::Configuration()->get('from_email', 'sendMail')) ? Symphony::Configuration()->get('from_email', 'sendMail') : 'noreply@' . HTTP_HOST);
-			if(!Symphony::Configuration()->get('from_name', 'sendMail')){
-				$author_manager = new AuthorManager();
-				$author = $author_manager->fetch('user_type','ASC', 1);
-				$this->setSenderName($author[0]->get('first_name') . ' ' . $author[0]->get('last_name'));
-			}
-			else{
-				$this->setSenderName(Symphony::Configuration()->get('from_name', 'sendMail'));
-			}
+			$this->setSenderEmailAddress(Symphony::Configuration()->get('from_email', 'sendMail') ? Symphony::Configuration()->get('from_email', 'sendMail') : 'noreply@' . HTTP_HOST);
+			$this->setSenderName(Symphony::Configuration()->get('from_name', 'sendMail') ? Symphony::Configuration()->get('from_name', 'sendMail') : 'Symphony');
 		}
 		
 		public function about(){
