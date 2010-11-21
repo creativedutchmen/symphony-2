@@ -38,7 +38,7 @@
 				$label = Widget::Label();
 				
 				// Get gateway names
-				krsort($email_gateways); 
+				ksort($email_gateways); 
 				
 				$default_gateway = $email_gateway_manager->getDefaultGateway();
 				$selected_is_installed = $email_gateway_manager->__find($default_gateway);
