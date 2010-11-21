@@ -63,7 +63,7 @@
 				$headers[] = sprintf('%s: %s', $header, $value);
 			}
 
-			$result = mail($this->recipient, $this->subject, @wordwrap($this->message, 70), @implode(self::CRLF, $headers) . "\r\n", "-f{$this->sender_email_address}");
+			$result = mail($this->recipient, $this->subject, @wordwrap($this->message, 70), @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 			
 			if($result !== true){
 				throw new EmailGatewayException('Email failed to send. Please check input.');
