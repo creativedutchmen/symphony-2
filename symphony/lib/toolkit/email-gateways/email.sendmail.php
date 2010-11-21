@@ -20,8 +20,8 @@
 
 			$this->validate();
 
-			$this->subject = self::encodeHeader($this->subject, 'UTF-8');
-			$this->sender_name = self::encodeHeader($this->sender_name, 'UTF-8');
+			$this->subject = self::qpEncodeHeader($this->subject, 'UTF-8');
+			$this->sender_name = self::qpEncodeHeader($this->sender_name, 'UTF-8');
 
 			$default_headers = array(
 				'Return-path'	=> "<{$this->sender_email_address}>",
@@ -91,12 +91,12 @@
 
 		/***
 
-		Method: encodeHeader
+		Method: qpEncodeHeader
 		Description: Encodes (parts of) an email header if necessary, according to RFC2047 if mbstring is available;
 		Added by: Michael Eichelsdoerfer
 
 		***/
-		public static function encodeHeader($input, $charset='ISO-8859-1')
+		public static function qpEncodeHeader($input, $charset='ISO-8859-1')
 		{
 		    if(preg_match_all('/(\s?\w*[\x80-\xFF]+\w*\s?)/', $input, $matches))
 		    {
