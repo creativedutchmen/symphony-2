@@ -31,6 +31,7 @@
 				'X-Mailer'		=> 'Symphony Email Module',
 				'MIME-Version'	=> '1.0',
 				'Content-Type'	=> 'text/plain; charset=UTF-8',
+				'Content-Transfer-Encoding' => 'quoted-printable',
 			);
 
 			foreach($default_headers as $key => $value){
@@ -48,7 +49,7 @@
 
 			$this->message = $this->qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
-
+			
 			$result = mail($this->recipient, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 
 			if($result !== true){
