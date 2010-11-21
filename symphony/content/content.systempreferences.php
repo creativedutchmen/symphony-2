@@ -40,8 +40,11 @@
 				// Get gateway names
 				krsort($email_gateways); 
 				
+				$default_gateway = $email_gateway_manager->getDefaultGateway();
+				$selected_is_installed = $email_gateway_manager->__find($default_gateway);
+				
 				foreach($email_gateways as $handle => $details) {
-					$options[] = array($handle, $handle == $email_gateway_manager->getDefaultGateway(), $details['name']);
+					$options[] = array($handle, (($handle == $default_gateway) || (($selected_is_installed == false) && $handle == 'sendmail')), $details['name']);					
 				}
 				$select = Widget::Select('settings[Email][default_gateway]', $options);			
 				$label->appendChild($select);
