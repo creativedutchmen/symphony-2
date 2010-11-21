@@ -206,7 +206,6 @@
 							$email = Email::create();
 							
 							$email->recipient = $author['email'];
-							$email->sender_email_address = Symphony::Database()->fetchVar('email', 0, "SELECT `email` FROM `tbl_authors` ORDER BY `id` ASC LIMIT 1");
 							$email->subject = __('New Symphony Account Password');
 							$email->message = __('Hi %s,', array($author['first_name'])) . self::CRLF .
 									__('A new password has been requested for your account. Login using the following link, and change your password via the Authors area:') . self::CRLF .
