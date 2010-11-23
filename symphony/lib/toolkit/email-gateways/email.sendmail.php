@@ -48,7 +48,7 @@
 				$headers[] = sprintf('%s: %s', $header, $value);
 			}
 
-			$this->message = $this->qpEncodeBodyPart($this->message);
+			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
 			$result = mail($this->recipient, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
