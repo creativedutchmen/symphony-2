@@ -31,13 +31,7 @@
 		function create($gateway = null){
 			$email_gateway_manager = new EmailGatewayManager($this);
 			if($gateway){
-				$default_gateway = $email_gateway_manager->find($gateway);
-				if($default_gateway){
-					return $email_gateway_manager->create($default_gateway);
-				}
-				else{
-					throw new EmailException('Can not find gateway. Please check if the extension supplying the gateway is still installed, or change settings accordingly');
-				}
+				return $email_gateway_manager->create($gateway);
 			}
 			else{
 				return $email_gateway_manager->create($email_gateway_manager->getDefaultGateway());
