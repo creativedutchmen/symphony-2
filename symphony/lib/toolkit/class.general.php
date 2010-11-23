@@ -239,22 +239,21 @@
 				
 		}
 
-		/***
-		
-		WARNING: THIS FUNCTION IS NOW DEPRICATED, AND WILL BE REMOVED IN 
-		THE NEXT OFFICAL RELEASE. PLEASE USE 'Email' CLASS INSTEAD.
-		
-		Method: sendEmail
-		Description: Allows you to send emails. It includes some simple injection attack
-		             protection and more comprehensive headers
-		Param: $to_email - email of the recipiant
-		       $from_email - the from email address. This is usually your email
-		       $from_name - The name of the sender
-		       $subject - subject of the email
-		       $message - contents of the email
-		Return: true or false
-
-		***/		
+		/**
+		 * Method: sendEmail
+		 *
+		 * Allows you to send emails. It initializes the core email class.
+		 *
+		 * @param string $to_email - email of the recipiant
+		 * @param string $from_email - the from email address. This is usually your email
+		 * @param string $from_name - The name of the sender
+		 * @param string $subject - subject of the email
+		 * @param string $message - contents of the email
+		 * @param array $additional_headers - an array containing additional email headers
+		 * @return true on success
+		 *
+		 * @deprecated deprecated since version 2.2
+		 */
 		public static function sendEmail($to_email, $from_email, $from_name, $subject, $message, array $additional_headers = array()) {
 			
 			try{
