@@ -168,7 +168,7 @@
 				return $this->{'set'.$this->__toCamel($name, true)}($value);
 			}
 			else{
-				throw new EmailGatewayException('The '.__CLASS__.' gateway does not support the use of '.$name);
+				throw new EmailGatewayException('The ' . get_class($this) . ' gateway does not support the use of '.$name);
 			}
 		}
 		
