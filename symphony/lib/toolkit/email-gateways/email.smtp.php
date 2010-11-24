@@ -57,8 +57,8 @@
 			}
 			
 			$this->headers = array_merge($this->headers, Array(
-				'Reply-To'		=>	&$this->headers['From'],
-				'Return-Path'	=>	&$this->headers['From'],
+				'Reply-To'		=>	&$this->sender_email_address,
+				'Return-Path'	=>	&$this->sender_email_address,
 				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , $_SERVER['SERVER_NAME']),
 				
 			));
@@ -138,8 +138,13 @@
 
 		public function setSenderEmailAddress($email){
 			parent::setSenderEmailAddress($email, $name);
-			$this->appendHeader('From', $this->sender_email_address);
-		}			
+			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
+		}
+
+		public function setSenderName($name){
+			parent::setSenderName($name);
+			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
+		}		
 		
 		public function getPreferencesPane(){
 			parent::getPreferencesPane();
