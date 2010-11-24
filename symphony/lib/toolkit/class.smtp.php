@@ -30,12 +30,7 @@
 		protected $_user = null;
 		protected $_pass = null;
 		
-		protected $_headers = Array(
-			'X-Mailer'		=> 'Symphony Email Module',
-			'MIME-Version'	=> '1.0',
-			'Content-Type'	=> 'text/plain; charset=UTF-8',
-			'Content-Transfer-Encoding' => 'quoted-printable'
-		);
+		protected $_headers = Array();
 		
 		protected $_from = null;
 		protected $_subject = null;
@@ -91,9 +86,7 @@
 				}
 			}
 			if ($port == null) {
-				if (($port = ini_get('smtp_port')) == '') {
-					$port = 25;
-				}
+				$port = 25;
 			}
 			if(($options['username'] !== null) && ($options['password'] !== null)){
 				$this->_user = $options['username'];
