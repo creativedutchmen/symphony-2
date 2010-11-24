@@ -83,7 +83,6 @@
 			return $group;
 		}
 
-		// Huib: Why should this be public?
 		public function validate(){
 			// Huib: Added this check to the place the data is entered, instead of when it is used.
 			if (preg_match('%[\r\n]%', $this->sender_name . $this->sender_email_address)){
