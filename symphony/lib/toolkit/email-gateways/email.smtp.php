@@ -55,7 +55,7 @@
 				$settings['username'] = $this->_user;
 				$settings['password'] = $this->_pass;
 			}
-			if($this->_secure = 'tls'){
+			if($this->_secure == 'tls'){
 				$settings['secure'] = 'tls';
 			}
 			if($this->validate()){
