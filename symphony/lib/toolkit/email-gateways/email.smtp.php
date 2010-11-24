@@ -28,7 +28,7 @@
 		protected $_pass;
 		
 		protected $_headers = Array(
-			'X-Mailer'		=> 'Symphony Email Module',
+			'X-Mailer'		=> 'Symphony SMTP Email Module',
 			'MIME-Version'	=> '1.0',
 			'Content-Type'	=> 'text/plain; charset=UTF-8',
 			'Content-Transfer-Encoding' => 'quoted-printable'
