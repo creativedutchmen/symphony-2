@@ -25,7 +25,14 @@
 		protected $_auth = false;
 		
 		protected $_user;
-		protected $_pass;		
+		protected $_pass;
+		
+		protected $_headers = Array(
+			'X-Mailer'		=> 'Symphony Email Module',
+			'MIME-Version'	=> '1.0',
+			'Content-Type'	=> 'text/plain; charset=UTF-8',
+			'Content-Transfer-Encoding' => 'quoted-printable'
+		);
 		
 		public function about(){
 			return array(
@@ -38,12 +45,12 @@
 			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_smtp') ? Symphony::Configuration()->get('default_from_name', 'email_smtp') : 'Symphony');
 			$this->setHost(Symphony::Configuration()->get('host', 'email_smtp'));
 			$this->setPort(Symphony::Configuration()->get('port', 'email_smtp'));
-			if(Symphony::Configuration()->get('auth', 'email_smtp')){
+			if(Symphony::Configuration()->get('auth', 'email_smtp') == 1){
 				$this->setAuth(true);
 				$this->setUser(Symphony::Configuration()->get('username', 'email_smtp'));
 				$this->setPass(Symphony::Configuration()->get('password', 'email_smtp'));
 			}
-			if(Symphony::Configuration()->get('tls', 'email_smtp')){
+			if(Symphony::Configuration()->get('tls', 'email_smtp') == 1){
 				$this->_protocol = 'tcp';
 				$this->_secure = 'tls';
 			}
@@ -61,22 +68,26 @@
 			if($this->validate()){
 				try{
 					$this->_SMTP = new SMTP($this->_host, $this->_port, $settings);
+					foreach($this->_headers as $header=>$value){
+						$this->_SMTP->setHeader($header, $value);
+					}
 					$this->_SMTP->sendMail($this->sender_email_address, $this->recipient, $this->subject, $this->message);
 				}
 				catch(SMTPException $e){
 					throw new EmailGatewayException($e->getMessage());
 				}
 			}
+			var_dump($this);
+			return true;
 		}
 		
 		public function setHost($host = null){
 			if($host === null){
-				if(($host = @ini_get('SMTP')) == false){
-					$host = '127.0.0.1';
-				}
+				$host = '127.0.0.1';
 			}
 			if(substr($host, 0, 6) == 'ssl://'){
 				$this->_protocol = 'ssl';
+				$host = substr($host, 6);
 			}
 			$this->_host = $host;
 		}
@@ -86,9 +97,7 @@
 				if($this->_protocol == 'ssl'){
 					$port = 465;
 				}
-				elseif(($port = @ini_get('smtp_port')) == false){
-					$port = 25;
-				}
+				$port = 25;
 			}
 			$this->_port = $port;
 		}
