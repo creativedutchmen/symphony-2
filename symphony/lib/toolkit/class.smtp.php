@@ -1,6 +1,6 @@
 <?php
 	
-	include('class.emailhelper.php');
+	require_once('class.emailhelper.php');
 	/**
 	 * @package toolkit
 	 */
@@ -8,7 +8,7 @@
 	/**
 	 * Exceptions to be thrown by the SMTP Client class
 	 */
-	Class SMTPClientException extends Exception{
+	Class SMTPException extends Exception{
 	}
 	
 	/**
@@ -19,7 +19,7 @@
 	 * @author Huib Keemink <huib.keemink@creativedutchmen.com>
 	 * @version 0.1 - 20 okt 2010
 	 */
-	Class SMTPClient{
+	Class SMTP{
 		
 		const TIMEOUT	= 30;
 		const EOL		= "\r\n";
@@ -86,7 +86,7 @@
 						break;
 
 					default:
-						throw new SMTPClientException('Unsupported SSL type');
+						throw new SMTPException('Unsupported SSL type');
 						break;
 				}
 			}
@@ -151,7 +151,7 @@
 		public function setHeader($header, $value){
 			if(is_array($value)){
 				if(strtoupper($header) != 'TO'){
-					throw new SMTPClientException('Only TO can accept array values.');
+					throw new SMTPException('Only TO can accept array values.');
 				}
 				else{
 					foreach($value as $i => $val){
@@ -173,10 +173,10 @@
 		 */
 		public function helo(){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			if($this->_mail !== false){
-				throw new SMTPClientException('Can not call HELO on existing session');
+				throw new SMTPException('Can not call HELO on existing session');
 			}
 			//wait for the server to be ready
 			$this->_expect(220,300);
@@ -185,10 +185,10 @@
 			try{
 				$this->_ehlo();
 			}
-			catch(SMTPClientException $e){
+			catch(SMTPException $e){
 				$this->_helo();
 			}
-			catch(SMTPClientException $e){
+			catch(SMTPException $e){
 				throw $e;
 			}
 			
@@ -206,13 +206,13 @@
 		public function mail($from){
 			$from = EmailHelper::qpEncodeHeader($from, 'UTF-8');
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			if($this->_helo == false){
-				throw new SMTPClientException('Must call EHLO (or HELO) before calling MAIL');
+				throw new SMTPException('Must call EHLO (or HELO) before calling MAIL');
 			}
 			if($this->_mail !== false){
-				throw new SMTPClientException('Only one call to MAIL may be made at a time.');
+				throw new SMTPException('Only one call to MAIL may be made at a time.');
 			}
 			$this->_send('MAIL FROM:<' . $from . '>');
 			$this->_expect(250, 300);
@@ -234,10 +234,10 @@
 		public function rcpt($to){
 			$to = EmailHelper::qpEncodeHeader($to, 'UTF-8');
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			if($this->_mail == false){
-				throw new SMTPClientException('Must call MAIL before calling RCPT');
+				throw new SMTPException('Must call MAIL before calling RCPT');
 			}
 			
 			$this->_send('RCPT TO:<' . $to . '>');
@@ -255,10 +255,10 @@
 		 */
 		public function data($data){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			if($this->_rcpt == false){
-				throw new SMTPClientException('Must call RCPT before calling DATA');
+				throw new SMTPException('Must call RCPT before calling DATA');
 			}
 			
 			$this->_send('DATA');
@@ -313,7 +313,7 @@
 		 */
 		public function quit(){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
             $this->_send('QUIT');
             $this->_expect(221, 300);
@@ -329,13 +329,13 @@
 		 */
 		protected function _auth(){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			if($this->_helo == false){
-				throw new SMTPClientException('Must call EHLO (or HELO) before calling AUTH');
+				throw new SMTPException('Must call EHLO (or HELO) before calling AUTH');
 			}
 			if($this->_auth !== false){
-				throw new SMTPClientException('Can not call AUTH again.');
+				throw new SMTPException('Can not call AUTH again.');
 			}
 
 			$this->_send('AUTH LOGIN');
@@ -355,7 +355,7 @@
 		 */
 		protected function _ehlo(){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			$this->_send('EHLO ' . $this->_ip);
 			$this->_expect(array(250, 220), 300);
@@ -369,7 +369,7 @@
 		 */
 		protected function _helo(){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			$this->_send('HELO ' . $this->_ip);
 			$this->_expect(array(250, 220), 300);
@@ -385,7 +385,7 @@
 				$this->_send('STARTTLS');
 				$this->_expect(220, 180);
 				if (!stream_socket_enable_crypto($this->_connection, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-					throw new SMTPClientException('Unable to connect via TLS');
+					throw new SMTPException('Unable to connect via TLS');
 				}
 				$this->_ehlo();
 			}
@@ -399,12 +399,12 @@
 		 */
 		protected function _send($request){
 			if(!is_resource($this->_connection)){
-				throw new SMTPClientException('No connection to a server present');
+				throw new SMTPException('No connection to a server present');
 			}
 			
 			$result = fwrite($this->_connection, $request . self::EOL);
 			if($result === false){
-				throw new SMTPClientException('Could not send request: '.$request);
+				throw new SMTPException('Could not send request: '.$request);
 			}
 			return $result;
 		}
@@ -418,7 +418,7 @@
 		protected function _receive($timeout = null)
 		{
 			if (!is_resource($this->_connection)) {
-				throw new SMTPClientException('No connection has been established to ' . $this->_host);
+				throw new SMTPException('No connection has been established to ' . $this->_host);
 			}
 
 			if ($timeout !== null) {
@@ -430,11 +430,11 @@
 			$info = stream_get_meta_data($this->_connection);
 
 			if (!empty($info['timed_out'])) {
-				throw new SMTPClientException($this->_host . ' has timed out');
+				throw new SMTPException($this->_host . ' has timed out');
 			}
 
 			if ($reponse === false) {
-				throw new SMTPClientException('Could not read from ' . $this->_host);
+				throw new SMTPException('Could not read from ' . $this->_host);
 			}
 
 			return $reponse;
@@ -445,11 +445,12 @@
 		 *
 		 * Read the response from the stream and check for expected return code.
 		 *
-		 * @param  string|array $code One or more codes that indicate a successful response
-		 * @return string Last line of response string
+		 * @param  string|array $code
+		 *	One or more codes that indicate a successful response
+		 * @return string
+		 *	Last line of response string
 		 */
-		protected function _expect($code, $timeout = null)
-		{
+		protected function _expect($code, $timeout = null){
 			$this->_response = array();
 			$cmd  = '';
 			$more = '';
@@ -474,7 +475,7 @@
 			} while (strpos($more, '-') === 0); // The '-' message prefix indicates an information string instead of a response string.
 
 			if ($errMsg !== '') {
-				throw new SMTPClientException($errMsg);
+				throw new SMTPException($errMsg);
 			}
 
 			return $msg;
@@ -496,15 +497,15 @@
 			
 			if($this->_connection === false){
 				if($errorNum == 0){
-					throw new SMTPClientException('Unable to open socket. Unknown error');
+					throw new SMTPException('Unable to open socket. Unknown error');
 				}
 				else{
-					throw new SMTPClientException('Unable to open socket. '.$errorStr);
+					throw new SMTPException('Unable to open socket. '.$errorStr);
 				}
 			}
 			
-			if(@stream_set_timeout($this->_socket, self::TIMEOUT) === false){
-				throw new SMTPClientException('Unable to set timeout.');
+			if(@stream_set_timeout($this->_connection, self::TIMEOUT) === false){
+				throw new SMTPException('Unable to set timeout.');
 			}
 		}
 	}
