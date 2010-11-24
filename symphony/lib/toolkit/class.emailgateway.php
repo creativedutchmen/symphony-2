@@ -164,7 +164,7 @@
 		 * @return void|bool
 		 */
 		public function __set($name, $value){	
-			if(method_exists(__CLASS__, 'set'.$this->__toCamel($name, true))){	
+			if(method_exists(get_class($this), 'set'.$this->__toCamel($name, true))){	
 				return $this->{'set'.$this->__toCamel($name, true)}($value);
 			}
 			else{
