@@ -59,13 +59,13 @@
 		 * Sets the sender-email and sender-name.
 		 *
 		 * @param string $email
-		 * 	The email-adress emails will be sent from
+		 * 	The email-address emails will be sent from
 		 * @param string $name
 		 *	The name the emails will be sent from.
 		 * @return void
 		 */
 		public function setFrom($email, $name){
-			$this->setSenderEmailAdress($email);
+			$this->setSenderEmailAddress($email);
 			$this->setSenderName($name);
 		}
 		
@@ -73,7 +73,7 @@
 		 * Sets the sender-email.
 		 *
 		 * @param string $email
-		 * 	The email-adress emails will be sent from
+		 * 	The email-address emails will be sent from
 		 * @return void
 		 */
 		public function setSenderEmailAddress($email){
@@ -97,7 +97,7 @@
 		 * Sets the recipient.
 		 *
 		 * @param string $email
-		 * 	The email-adress to send the email to.
+		 * 	The email-address to send the email to.
 		 * @return void
 		 * @todo accept array and string. Array should email the email to multiple recipients. 	
 		 */
