@@ -60,13 +60,6 @@
 			return true;
 		}
 
-		public function appendHeader($name, $value, $replace=true){
-			if($replace === false && array_key_exists($name, $this->headers)){
-				throw new EmailGatewayException("The header '{$name}' has already been set.");
-			}
-			$this->headers[$name] = $value;
-		}
-
 		public function getPreferencesPane(){
 			parent::getPreferencesPane();
 			$group = new XMLElement('fieldset');
