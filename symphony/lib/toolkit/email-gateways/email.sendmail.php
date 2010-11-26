@@ -63,7 +63,8 @@
 		public function getPreferencesPane(){
 			parent::getPreferencesPane();
 			$group = new XMLElement('fieldset');
-			$group->setAttribute('class', 'settings');
+			$group->setAttribute('class', 'settings email-gateway');
+			$group->setAttribute('id', 'sendmail');
 			$group->appendChild(new XMLElement('legend', __('Email: Sendmail')));
 
 			$div = new XMLElement('div');
