@@ -1,14 +1,73 @@
-var Symphony;
+/**
+ * SYMPHONY
+ * Administration
+ *
+ * @version 2.2.0dev
+ */
+
+
+// Declare Symphony object globally
+var Symphony = {};
+
 
 (function($) {
+
+/*-----------------------------------------------------------------------------
+	Symphony object
+-----------------------------------------------------------------------------*/
+
 	Symphony = {
-		WEBSITE: $('script[src]')[0].src.match('(.*)/symphony')[1],
+	
+		// Initialize Symphony
+		init: function() {
+			var html = $('html'),
+				user = $('#usr li:first a'),
+				url = window.location.href.match('(.*)/symphony/(.*)');
+			
+			// Set JavaScript status
+			$(document.documentElement).addClass('active');
+
+			// Set user information
+			Symphony.User.fullname = user.text();
+			Symphony.User.name = user.attr('name');
+			Symphony.User.type = user.attr('class');
+			Symphony.User.id = user.attr('id').substring(4);
+			
+			// Set context
+			Symphony.Context.lang = html.attr('lang');
+			Symphony.Context.root = url[1];
+			Symphony.Context.area = url[2].split('/')[0];
+
+			// Initialise language
+			Symphony.Language.add({
+				'Add item': false,
+				'Remove selected items': false,
+				'Are you sure you want to {$action} {$name}?': false,
+				'Are you sure you want to {$action} {$count} items?': false,
+				'Are you sure you want to {$action}?': false,
+				'Reordering was unsuccessful.': false,
+				'Password': false,
+				'Change Password': false,
+				'Remove File': false,
+				'at': false,
+				'just now': false,
+				'a minute ago': false,
+				'{$minutes} minutes ago': false,
+				'about 1 hour ago': false,
+				'about {$hours} hours ago': false
+			});
+			
+			// Ensure backward compatibility
+			Symphony.WEBSITE = Symphony.Context.root;
+			Symphony.Language.NAME = Symphony.Context.lang;
+		},
+
+		// Language management
 		Language: {
-			NAME: $('html').attr('lang'),
-			DICTIONARY: {},
+			Dictionary: {},
 			get: function(string, tokens) {
 				// Get translated string
-				translatedString = Symphony.Language.DICTIONARY[string];
+				translatedString = Symphony.Language.Dictionary[string];
 
 				// Return string if it cannot be found in the dictionary
 				if(translatedString !== false) string = translatedString;
@@ -32,8 +91,8 @@ var Symphony;
 					strings[key] = key;
 				});
 				// Save English strings
-				if(Symphony.Language.NAME == 'en') {
-					Symphony.Language.DICTIONARY = $.extend(Symphony.Language.DICTIONARY, strings);
+				if(Symphony.Context.lang == 'en') {
+					Symphony.Language.Dictionary = $.extend(Symphony.Language.Dictionary, strings);
 				}
 				// Translate strings
 				else {
@@ -45,18 +104,20 @@ var Symphony;
 				$.ajax({
 					async: false,
 					type: 'GET',
-					url: Symphony.WEBSITE + '/symphony/ajax/translate',
+					url: Symphony.Context.root + '/symphony/ajax/translate',
 					data: strings,
 					dataType: 'json',
 					success: function(result) {
-						Symphony.Language.DICTIONARY = $.extend(Symphony.Language.DICTIONARY, result);
+						Symphony.Language.Dictionary = $.extend(Symphony.Language.Dictionary, result);
 					},
 					error: function() {
-						Symphony.Language.DICTIONARY = $.extend(Symphony.Language.DICTIONARY, strings);
+						Symphony.Language.Dictionary = $.extend(Symphony.Language.Dictionary, strings);
 					}
 				});
 			}
 		},
+		
+		// Symphony messages
 		Message: {
 			post: function(message, type) {
 				this.queue = this.queue.concat($('#notice').remove().get()); // Store previous message
@@ -113,30 +174,28 @@ var Symphony;
 				}
 			},
 			queue: []
-		}
+		},
+
+		// User information
+		User: {},
+		
+		// Context information
+		Context: {},
+			
+		// Extensions
+		Extensions: {}
+		
 	};
-
-	// Add language strings
-	Symphony.Language.add({
-		'Add item': false,
-		'Remove selected items': false,
-		'Are you sure you want to {$action} {$name}?': false,
-		'Are you sure you want to {$action} {$count} items?': false,
-		'Are you sure you want to {$action}?': false,
-		'Reordering was unsuccessful.': false,
-		'Password': false,
-		'Change Password': false,
-		'Remove File': false,
-		'at': false,
-		'just now': false,
-		'a minute ago': false,
-		'{$minutes} minutes ago': false,
-		'about 1 hour ago': false,
-		'about {$hours} hours ago': false
+	
+	// Initialise Symphony
+	$(document).ready(function() {
+		Symphony.init();
 	});
+	
 
-	// Set JavaScript status
-	$(document.documentElement).addClass('active');
+/*-----------------------------------------------------------------------------
+	DOM interactions
+-----------------------------------------------------------------------------*/
 
 	// Sortable lists
 	var movable = {
@@ -214,7 +273,7 @@ var Symphony;
 
 		$.ajax({
 			type: 'POST',
-			url: Symphony.WEBSITE + '/symphony/ajax/reorder' + location.href.slice(Symphony.WEBSITE.length + 9),
+			url: Symphony.Context.root + '/symphony/ajax/reorder' + location.href.slice(Symphony.Context.root.length + 9),
 			data: $('input', this).map(function(i) { return this.name + '=' + i; }).get().join('&'),
 			success: function() {
 				Symphony.Message.clear('reorder');
@@ -304,7 +363,9 @@ var Symphony;
 		}
 	});
 
-	$(function() {
+	// Document ready
+	$(document).ready(function() {
+
 		// Ugly DOM maintenance
 		$('table:has(input)').addClass('selectable');
 
@@ -364,13 +425,15 @@ var Symphony;
 				    t = (i > 1 ? 'Are you sure you want to {$action} {$count} items?' : 'Are you sure you want to {$action} {$name}?'),
 				    s = document.getElementsByName('with-selected')[0],
 				    o = $(s.options[s.selectedIndex]);
-
+				
+				if (i == 0) return false;
+				
 				t = Symphony.Language.get(t, {
 					'action': o.text().toLowerCase(),
 					'name': $.trim($('table input:checked').parents('tr').find('td').eq(0).text()),
 					'count': i
 				});
-
+				
 				return i > 0 && !o.hasClass('confirm') || confirm(t);
 			});
 		}
@@ -378,7 +441,7 @@ var Symphony;
 		// XSLT utilities
 		$('#utilities a').each(function() {
 			var a = $(this.parentNode),
-			    r = new RegExp('href=["\']?\\.{2}/utilities/' + $(this).text());
+			    r = new RegExp('href=["\']?(?:\\.{2}/utilities/)?' + $(this).text());
 
 			$('textarea').blur(function() {
 				a[r.test(this.value) ? 'addClass' : 'removeClass']('selected');
@@ -488,7 +551,19 @@ var Symphony;
 			$(this).parent().html(html.replace(Symphony.Language.get('at') + ' ', ''));
 		});
 		Symphony.Message.timer();
+
+		// Hide by select box
+		var picker = $('select.picker');
+		var selectables = $('.selectable');
+		picker.find('option').each(function() {
+			selectables.filter('#' + $(this).val()).hide();
+		});
+		picker.click(function() {
+			selectables.hide().filter('#' + $(this).val()).show();
+		}).click();
+
 	});
+	
 })(jQuery.noConflict());
 
 
