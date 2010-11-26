@@ -127,9 +127,6 @@
 			foreach($to as $recipient){
 				$this->rcpt($recipient);
 			}
-			$this->setHeader('to', $to);
-			$this->setHeader('from', $from);
-			$this->setHeader('subject', $subject);
 			$this->data($message);
 			$this->quit();
 		}
@@ -258,7 +255,8 @@
 			$this->_expect(354, 120);
 			
 			foreach($this->_headers as $header => $value){
-				// TO: can accept an array. Must call the TO command for each recipient.
+				// Every header can contain an array. Will insert multiple headers of that type with the contents of array.
+				// Useful for multiple recipients, for instance.
 				if(!is_array($value)){
 					$value = Array($value);
 				}
