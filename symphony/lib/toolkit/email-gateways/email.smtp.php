@@ -149,7 +149,7 @@
 		public function getPreferencesPane(){
 			parent::getPreferencesPane();
 			$group = new XMLElement('fieldset');
-			$group->setAttribute('class', 'settings email-gateway');
+			$group->setAttribute('class', 'settings selectable');
 			$group->setAttribute('id', 'smtp');
 			$group->appendChild(new XMLElement('legend', __('Email: Core SMTP')));
 
