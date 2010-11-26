@@ -276,3 +276,15 @@ a.button.active {
 a.create {
 	background-color: #81b934;
 }
+
+/* Picker */
+fieldset.picker {
+	border-bottom: none;
+	margin: 0;
+}
+fieldset.selectable {
+	padding-top: 0;
+}
+fieldset.selectable legend {
+	display: none;
+}

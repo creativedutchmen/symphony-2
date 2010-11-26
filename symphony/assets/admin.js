@@ -553,7 +553,7 @@ var Symphony = {};
 		Symphony.Message.timer();
 
 		// Hide by select box
-		var picker = $('select.picker');
+		var picker = $('.picker select');
 		var selectables = $('.selectable');
 		picker.find('option').each(function() {
 			selectables.filter('#' + $(this).val()).hide();

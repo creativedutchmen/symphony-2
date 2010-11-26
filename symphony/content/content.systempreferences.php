@@ -57,8 +57,7 @@
 			$email_gateway_manager = new EmailGatewayManager($this);
 			$email_gateways = $email_gateway_manager->listAll();
 			if(count($email_gateways) >= 1){
-				$group = new XMLElement('fieldset');
-				$group->setAttribute('class', 'settings');
+				$group = new XMLElement('fieldset', NULL, array('class' => 'settings picker'));
 				$group->appendChild(new XMLElement('legend', __('Email Gateway')));
 				$label = Widget::Label();
 
@@ -72,7 +71,7 @@
 				foreach($email_gateways as $handle => $details) {
 					$options[] = array($handle, (($handle == $default_gateway) || (($selected_is_installed == false) && $handle == 'sendmail')), $details['name']);
 				}
-				$select = Widget::Select('settings[Email][default_gateway]', $options, array('class' => 'picker'));
+				$select = Widget::Select('settings[Email][default_gateway]', $options);
 				$label->appendChild($select);
 				$group->appendChild($label);
 				$group->appendChild(new XMLElement('p', __('The core will use this gateway to send email. More gateways can be installed using extensions.'), array('class' => 'help')));
