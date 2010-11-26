@@ -41,6 +41,7 @@
 				// Get language names
 				asort($languages);
 
+				$options = array();
 				foreach($languages as $code => $name) {
 					$options[] = array($code, $code == Symphony::Configuration()->get('lang', 'symphony'), $name);
 				}
@@ -67,6 +68,7 @@
 				$default_gateway = $email_gateway_manager->getDefaultGateway();
 				$selected_is_installed = $email_gateway_manager->__find($default_gateway);
 
+				$options = array();
 				foreach($email_gateways as $handle => $details) {
 					$options[] = array($handle, (($handle == $default_gateway) || (($selected_is_installed == false) && $handle == 'sendmail')), $details['name']);
 				}
