@@ -40,13 +40,9 @@
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
-			var_dump($headers);
-			
 			foreach($this->recipient as $to){
 				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 				if($result !== true){
-					var_dump($this);
-					
 					throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
 				}
 			}
