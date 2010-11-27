@@ -261,13 +261,13 @@
 				
 				if (!empty($additional_headers)) {
 					foreach ($additional_headers as $header => $value) {
-						$header = preg_replace_callback('/\w+/', create_function('$m', 'if(in_array($m[0], array("MIME", "ID"))) return $m[0]; else return ucfirst($m[0]);'), $header);
 						$email->appendHeader($header, $value);
 					}
 				}
+				$email->sender_name = $from_name;
+				$email->sender_email_address = $from_email;
 				
 				$email->recipient = $to_email;
-
 				$email->message = $message;
 				$email->subject = $subject;
 
