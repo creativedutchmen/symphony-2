@@ -4,6 +4,10 @@
 	require_once(TOOLKIT . '/class.emailhelper.php');
 
 	Class SendmailGateway extends EmailGateway{
+	
+		protected $_headers = Array(
+			'X-Mailer'	=>	'Symphony',
+		);
 
 		public function __construct(){
 			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_sendmail') ? Symphony::Configuration()->get('default_from_address', 'email_sendmail') : 'noreply@' . HTTP_HOST);
@@ -24,26 +28,6 @@
 			$this->subject = EmailHelper::qpEncodeHeader($this->subject, 'UTF-8');
 			$this->sender_name = EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8');
 
-			$default_headers = array(
-				'Return-path'	=> "<{$this->sender_email_address}>",
-				'Message-ID'	=> sprintf('<%s@%s>', md5(uniqid(time())), $_SERVER['SERVER_NAME']),
-				'From'			=> "{$this->sender_name} <{$this->sender_email_address}>",
-		 		'Reply-To'		=> $this->sender_email_address,
-				'X-Mailer'		=> 'Symphony Email Module',
-				'MIME-Version'	=> '1.0',
-				'Content-Type'	=> 'text/plain; charset=UTF-8',
-				'Content-Transfer-Encoding' => 'quoted-printable',
-			);
-
-			foreach($default_headers as $key => $value){
-				try{
-					$this->appendHeader($key, $value, false);
-				}
-				catch(Exception $e){
-					//Its okay to discard errors. They mean the header was already set.
-				}
-			}
-
 			foreach ($this->headers as $header => $value) {
 				$headers[] = sprintf('%s: %s', $header, $value);
 			}
@@ -51,11 +35,14 @@
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
-			$result = mail($this->recipient, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
-
-			if($result !== true){
-				throw new EmailGatewayException('Email failed to send. Please check input.');
+			foreach($this->recipient as $to){
+				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
+				if($result !== true){
+					throw new EmailGatewayException('Email failed to send. Please check input, or make sure php is not running in safe mode.');
+				}
 			}
+
+		
 
 			return true;
 		}
