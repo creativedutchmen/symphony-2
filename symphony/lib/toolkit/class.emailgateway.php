@@ -148,7 +148,9 @@
 			if($replace === false && array_key_exists($name, $this->headers)){
 				throw new EmailGatewayException("The header '{$name}' has already been set.");
 			}
-			$this->headers[$name] = $value;
+			else{
+				$this->headers[$name] = $value;
+			}
 		}
 		
 		/**
