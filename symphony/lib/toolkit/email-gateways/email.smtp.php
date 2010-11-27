@@ -22,18 +22,14 @@
 		protected $_protocol = 'tcp';
 		protected $_secure = false;
 		
+		protected $_headers = Array(
+			'Content-Transfer-Encoding' => 'quoted-printable',
+		);
+		
 		protected $_auth = false;
 		
 		protected $_user;
 		protected $_pass;
-		
-		protected $headers = Array(
-			'X-Mailer'		=> 'Symphony Email Module',
-			'MIME-Version'	=> '1.0',
-			'Content-Type'	=> 'text/plain; charset=UTF-8',
-			'Content-Transfer-Encoding' => 'quoted-printable',
-			'From'			=>	''
-		);
 		
 		public function about(){
 			return array(
@@ -42,6 +38,7 @@
 		}
 		
 		public function __construct(){
+			parent::__construct();
 			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_smtp') ? Symphony::Configuration()->get('default_from_address', 'email_smtp') : 'noreply@' . HTTP_HOST);
 			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_smtp') ? Symphony::Configuration()->get('default_from_name', 'email_smtp') : 'Symphony');
 			$this->setHost(Symphony::Configuration()->get('host', 'email_smtp'));
@@ -55,13 +52,6 @@
 				$this->_protocol = 'tcp';
 				$this->_secure = 'tls';
 			}
-			
-			$this->headers = array_merge($this->headers, Array(
-				'Reply-To'		=>	&$this->sender_email_address,
-				'Return-Path'	=>	&$this->sender_email_address,
-				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , $_SERVER['SERVER_NAME']),
-				
-			));
 		}
 		
 		public function send(){
@@ -120,31 +110,6 @@
 		public function setAuth($auth = false){
 			$this->_auth = $auth;
 		}
-		
-		public function setRecipient($email){
-			parent::setRecipient($email);
-			$this->appendHeader('To', $this->recipient);
-		}
-		
-		public function setSubject($subject){
-			parent::setSubject($subject);
-			$this->appendHeader('Subject', $this->subject);
-		}
-		
-		public function setFrom($email, $name){
-			parent::setFrom($email, $name);
-			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
-		}
-
-		public function setSenderEmailAddress($email){
-			parent::setSenderEmailAddress($email, $name);
-			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
-		}
-
-		public function setSenderName($name){
-			parent::setSenderName($name);
-			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
-		}		
 		
 		public function getPreferencesPane(){
 			parent::getPreferencesPane();
@@ -213,35 +178,5 @@
 			$group->appendChild($div);
 			
 			return $group;
-		}
-		
-		public function validate(){
-			// Huib: Added this check to the place the data is entered, instead of when it is used.
-			if (preg_match('%[\r\n]%', $this->sender_name . $this->sender_email_address)){
-				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
-			}
-
-			// Make sure the Message, Recipient, Sender Name and Sender Email values are set
-			if(strlen(trim($this->message)) <= 0){
-				throw new EmailGatewayException('Email message cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->subject)) <= 0){
-				throw new EmailGatewayException('Email subject cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->sender_name)) <= 0){
-				throw new EmailGatewayException('Sender name cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->sender_email_address)) <= 0){
-				throw new EmailGatewayException('Sender email address cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->recipient)) <= 0){
-				throw new EmailGatewayException('Recipient email address cannot be empty.');
-			}
-
-			return true;
 		}
 	}
