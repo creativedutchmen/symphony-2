@@ -38,7 +38,7 @@
 			foreach($this->recipient as $to){
 				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 				if($result !== true){
-					throw new EmailGatewayException('Email failed to send. Please check input, or make sure php is not running in safe mode.');
+					throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
 				}
 			}
 
@@ -69,36 +69,6 @@
 
 			$group->appendChild(new XMLElement('p', __('The core will use these default settings to send email. The settings can be overwritten if necessary.'), array('class' => 'help')));
 			return $group;
-		}
-
-		public function validate(){
-			// Huib: Added this check to the place the data is entered, instead of when it is used.
-			if (preg_match('%[\r\n]%', $this->sender_name . $this->sender_email_address)){
-				throw new EmailGatewayException("The sender name and/or email address contain invalid data. It cannot include new line or carriage return characters.");
-			}
-
-			// Make sure the Message, Recipient, Sender Name and Sender Email values are set
-			if(strlen(trim($this->message)) <= 0){
-				throw new EmailGatewayException('Email message cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->subject)) <= 0){
-				throw new EmailGatewayException('Email subject cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->sender_name)) <= 0){
-				throw new EmailGatewayException('Sender name cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->sender_email_address)) <= 0){
-				throw new EmailGatewayException('Sender email address cannot be empty.');
-			}
-
-			elseif(strlen(trim($this->recipient)) <= 0){
-				throw new EmailGatewayException('Recipient email address cannot be empty.');
-			}
-
-			return true;
 		}
 	}
 
