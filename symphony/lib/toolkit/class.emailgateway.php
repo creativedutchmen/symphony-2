@@ -3,9 +3,11 @@
 	/**
 	 * @package toolkit
 	 */
+	 
+	
 	
 	/**
-	 * The Exception to be thrown by all email gateways.
+	 * The standard exception to be thrown by all email gateways.
 	 */
 	class EmailGatewayException extends Exception{
 		
@@ -25,6 +27,13 @@
 	}
 	
 	/**
+	 * The validation exception to be thrown by all email gateways.
+	 * This exception is thrown if data does not pass validation.
+	 */
+	class EmailValidationException extends EmailGatewayException{
+	}
+	
+	/**
 	 * A base class for email gateways.
 	 * All email-gateways should extend this class in order to work.
 	 *
@@ -32,8 +41,25 @@
 	 */
 	Abstract Class EmailGateway{
 		
-		protected $headers = Array();
-		protected $recipient;
+		/**
+		 * @property array $headers
+		 * 	This are the default symphony headers.
+		 * 	These headers should be merged with the default headers of each gateway.
+		 */
+		protected $headers = Array(
+			'X-Mailer'		=> 'Symphony Email Module',
+			'MIME-Version'	=> '1.0',
+			'Content-Type'	=> 'text/plain; charset=UTF-8',
+			'From'			=>	''
+		);
+		
+		/**
+		 * @property array $_headers
+		 * 	This are the headers set by each gateway.
+		 *	Every gateway should place gateway specific headers in this array (in its own class definition, ofcourse).
+		 */
+		protected $_headers = Array();
+		protected $recipient = Array();
 		protected $sender_name;
 		protected $sender_email_address;
 		protected $subject;
@@ -43,6 +69,15 @@
 		 * @return void
 		 */
 		public function __construct(){
+			// Merge headers with dynamic headers.
+			$this->headers = array_merge($this->headers, Array(
+				'Return-Path'	=>	&$this->sender_email_address,
+				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , $_SERVER['SERVER_NAME']),
+				
+			));
+			
+			// Merge headers with headers set by child.
+			$this->headers = array_merge($this->headers, $this->_headers);
 		}
 		
 		/**
@@ -77,8 +112,11 @@
 		 * @return void
 		 */
 		public function setSenderEmailAddress($email){
-			//TODO: sanitizing and security checking
+			if(preg_match('%[\r\n]%', $email)){
+				throw new EmailValidationException('Sender Email Address can not contain cariage return or newlines.');
+			}
 			$this->sender_email_address = $email;
+			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
 		}
 		
 		/**
@@ -89,21 +127,28 @@
 		 * @return void
 		 */
 		public function setSenderName($name){
-			//TODO: sanitizing and security checking
+			if(preg_match('%[\r\n]%', $name)){
+				throw new EmailValidationException('Sender Name can not contain cariage return or newlines.');
+			}
 			$this->sender_name = $name;
+			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
 		}
 		
 		/**
 		 * Sets the recipient.
 		 *
-		 * @param string $email
+		 * @param string|array $email
 		 * 	The email-address to send the email to.
 		 * @return void
 		 * @todo accept array and string. Array should email the email to multiple recipients. 	
 		 */
 		public function setRecipient($email){
 			//TODO: sanitizing and security checking
+			if(!is_array($email)){
+				$email = Array($email);
+			}
 			$this->recipient = $email;
+			$this->appendHeader('To', $this->recipient);
 		}
 		
 		
@@ -129,6 +174,7 @@
 		public function setSubject($subject){
 			//TODO: sanitizing and security checking;
 			$this->subject = $subject;
+			$this->appendHeader('Subject', $this->subject);
 		}
 		
 		/**
@@ -151,6 +197,39 @@
 			else{
 				$this->headers[$name] = $value;
 			}
+		}
+		/**
+		 * Check to see if all required data is set.
+		 * 
+		 * @return bool
+		 */
+		public function validate(){
+
+			// Make sure the Message, Recipient, Sender Name and Sender Email values are set
+			if(strlen(trim($this->message)) <= 0){
+				throw new EmailValidationException('Email message cannot be empty.');
+			}
+
+			elseif(strlen(trim($this->subject)) <= 0){
+				throw new EmailValidationException('Email subject cannot be empty.');
+			}
+
+			elseif(strlen(trim($this->sender_name)) <= 0){
+				throw new EmailValidationException('Sender name cannot be empty.');
+			}
+
+			elseif(strlen(trim($this->sender_email_address)) <= 0){
+				throw new EmailValidationException('Sender email address cannot be empty.');
+			}
+
+			else{
+				foreach($this->recipient as $recipient){
+					if(strlen(trim($recipient)) <= 0){
+						throw new EmailValidationException('Recipient email address cannot be empty.');
+					}
+				}
+			}
+			return true;
 		}
 		
 		/**
@@ -176,8 +255,6 @@
 		
 		/**
 		 * The preferences to add to the preferences pane in the admin area.
-		 * The from_email and from_name can be kept between different gateways.
-		 * Reuse (by using the output for the preferences pane) is encouraged.
 		 *
 		 * @return XMLElement
 		 */
@@ -219,5 +296,7 @@
 			$func = create_function('$c', 'return "_" . strtolower($c[1]);');
 			return preg_replace_callback('/([A-Z])/', $func, $str);
 		}
+		
+		
 		
 	}
