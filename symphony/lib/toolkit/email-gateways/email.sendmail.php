@@ -6,10 +6,10 @@
 	Class SendmailGateway extends EmailGateway{
 	
 		protected $_headers = Array(
-			'X-Mailer'	=>	'Symphony',
 		);
 
 		public function __construct(){
+			parent::__construct();
 			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_sendmail') ? Symphony::Configuration()->get('default_from_address', 'email_sendmail') : 'noreply@' . HTTP_HOST);
 			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_sendmail') ? Symphony::Configuration()->get('default_from_name', 'email_sendmail') : 'Symphony');
 		}
@@ -29,15 +29,24 @@
 			$this->sender_name = EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8');
 
 			foreach ($this->headers as $header => $value) {
-				$headers[] = sprintf('%s: %s', $header, $value);
+				if(!is_array($value)){
+					$value = Array($value);
+				}
+				foreach($value as $val){
+					$headers[] = sprintf('%s: %s', $header, $val);
+				}
 			}
 
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
+			var_dump($headers);
+			
 			foreach($this->recipient as $to){
 				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 				if($result !== true){
+					var_dump($this);
+					
 					throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
 				}
 			}
