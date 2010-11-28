@@ -34,11 +34,10 @@
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
-			foreach($this->recipients as $to){
-				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
-				if($result !== true){
-					throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
-				}
+			$result = @mail($to_header, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
+
+			if($result !== true){
+				throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
 			}
 
 		
