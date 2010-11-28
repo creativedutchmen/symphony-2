@@ -28,12 +28,7 @@
 			$this->sender_name = EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8');
 
 			foreach ($this->headers as $header => $value) {
-				if(!is_array($value)){
-					$value = Array($value);
-				}
-				foreach($value as $val){
-					$headers[] = sprintf('%s: %s', $header, $val);
-				}
+				$headers[] = sprintf('%s: %s', $header, $value);
 			}
 
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
