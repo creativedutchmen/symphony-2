@@ -162,6 +162,6 @@
 					$return[] = $name . ' <' . $email . '>';
 				}
 			}
-			return implode(", ", $return);
+			return implode(",\r\n ", $return);
 		}
 	}
