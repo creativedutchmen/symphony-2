@@ -159,7 +159,7 @@
 					$return[] = $email;
 				}
 				else{
-					$return[] = $name . '<' . $email . '>';
+					$return[] = $name . ' <' . $email . '>';
 				}
 			}
 			return implode(", ", $return);
