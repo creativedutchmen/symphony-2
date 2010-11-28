@@ -260,6 +260,7 @@
 				if(strpos($line, '.') === 0){
 					$line = '.' . $line;
 				}
+				$this->_send($line);
 			}
 			
 			$this->_send('.');

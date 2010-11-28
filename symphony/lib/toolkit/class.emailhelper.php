@@ -149,4 +149,19 @@
 				return trim($output);				
 			}
 		}
+		
+		public function arrayToList($arr){
+			if(!is_array($arr)){
+				throw new Exception('Parameter should be an array.');
+			}
+			foreach($arr as $name => $email){
+				if(is_numeric($name)){
+					$return[] = $email;
+				}
+				else{
+					$return[] = $name . '<' . $email . '>';
+				}
+			}
+			return implode(", ", $return);
+		}
 	}

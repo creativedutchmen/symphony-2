@@ -15,19 +15,17 @@
 	
 	Class SMTPGateway extends EmailGateway{
 		
+		protected $_headers = Array(
+			'Content-Transfer-Encoding' => 'quoted-printable',
+		);
+		
 		protected $_SMTP;
 		
 		protected $_host;
 		protected $_port;
 		protected $_protocol = 'tcp';
-		protected $_secure = false;
-		
-		protected $_headers = Array(
-			'Content-Transfer-Encoding' => 'quoted-printable',
-		);
-		
-		protected $_auth = false;
-		
+		protected $_secure = false;		
+		protected $_auth = false;		
 		protected $_user;
 		protected $_pass;
 		
@@ -55,6 +53,9 @@
 		}
 		
 		public function send(){
+		
+			$this->validate();
+			
 			$settings = array();
 			if($this->_auth == true){
 				$settings['username'] = $this->_user;
@@ -63,17 +64,16 @@
 			if($this->_secure == 'tls'){
 				$settings['secure'] = 'tls';
 			}
-			if($this->validate()){
-				try{
-					$this->_SMTP = new SMTP($this->_host, $this->_port, $settings);
-					foreach($this->headers as $header=>$value){
-						$this->_SMTP->setHeader($header, $value);
-					}
-					$this->_SMTP->sendMail($this->sender_email_address, $this->recipient, $this->subject, $this->message);
+			try{
+				$this->_SMTP = new SMTP($this->_host, $this->_port, $settings);
+				foreach($this->headers as $header=>$value){
+					$this->_SMTP->setHeader($header, EmailHelper::qpEncodeHeader($value, 'UTF-8'));
 				}
-				catch(SMTPException $e){
-					throw new EmailGatewayException($e->getMessage());
-				}
+				$this->message = EmailHelper::qpEncodeBodyPart($this->message, 'UTF-8');
+				$this->_SMTP->sendMail($this->sender_email_address, $this->recipients, $this->subject, $this->message);
+			}
+			catch(SMTPException $e){
+				throw new EmailGatewayException($e->getMessage());
 			}
 			return true;
 		}

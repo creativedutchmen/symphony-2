@@ -59,7 +59,7 @@
 		 *	Every gateway should place gateway specific headers in this array (in its own class definition, ofcourse).
 		 */
 		protected $_headers = Array();
-		protected $recipient = Array();
+		protected $recipients = Array();
 		protected $sender_name;
 		protected $sender_email_address;
 		protected $subject;
@@ -135,20 +135,20 @@
 		}
 		
 		/**
-		 * Sets the recipient.
+		 * Sets the recipients.
 		 *
 		 * @param string|array $email
-		 * 	The email-address to send the email to.
-		 * @return void
-		 * @todo accept array and string. Array should email the email to multiple recipients. 	
+		 * 	The email-address(es) to send the email to.
+		 * @return void	
 		 */
-		public function setRecipient($email){
+		public function setRecipients($email){
 			//TODO: sanitizing and security checking
 			if(!is_array($email)){
 				$email = Array($email);
 			}
-			$this->recipient = $email;
-			$this->appendHeader('To', $this->recipient);
+			$this->recipients = $email;
+			$to_header = EmailHelper::arrayToList($email);
+			$this->appendHeader('To', $to_header);
 		}
 		
 		
@@ -179,24 +179,19 @@
 		
 		/**
 		 * Appends a header to the header list.
-		 * New headers should be presented as a name/value pair.
+		 * Headers should be presented as a name/value pair.
 		 *
 		 * @param string $name
 		 * 	The header name. Examples are From, X-Sender and Reply-to
 		 * @param string $value
 		 *	The header value.
-		 * @param bool @replace
-		 * 	If set to true, if a header is already set, it will be replaced.
-		 * 	If set to false, if a header is already set, an exception will be thrown.
 		 * @return void
 		 */
-		public function appendHeader($name, $value, $replace=true){
-			if($replace === false && array_key_exists($name, $this->headers)){
-				throw new EmailGatewayException("The header '{$name}' has already been set.");
+		public function appendHeader($name, $value){
+			if(is_array($value)){
+				throw new EmailGatewayException('Headers can only contain strings, arrays are not allowed');
 			}
-			else{
-				$this->headers[$name] = $value;
-			}
+			$this->headers[$name] = $value;
 		}
 		/**
 		 * Check to see if all required data is set.
@@ -223,7 +218,7 @@
 			}
 
 			else{
-				foreach($this->recipient as $recipient){
+				foreach($this->recipients as $recipient){
 					if(strlen(trim($recipient)) <= 0){
 						throw new EmailValidationException('Recipient email address cannot be empty.');
 					}
