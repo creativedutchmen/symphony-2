@@ -24,9 +24,8 @@
 
 			$this->validate();
 
-			$this->subject = @wordwrap(EmailHelper::qpEncodeHeader($this->subject, 'UTF-8'), 75, "\r\n ");
-			// $this->appendHeader('Return-path', '001@imacoda.com'); // no way to set the return-path... will be overwritten
 			$this->appendHeader('From', EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8') . ' <' . $this->sender_email_address . '>');
+			$this->subject = @wordwrap(EmailHelper::qpEncodeHeader($this->subject, 'UTF-8'), 275, "\r\n ");
 
 			foreach ($this->headers as $header => $value) {
 				$headers[] = sprintf('%s: %s', $header, $value);
