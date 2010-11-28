@@ -72,7 +72,7 @@
 			// Merge headers with dynamic headers.
 			$this->headers = array_merge($this->headers, Array(
 				'Return-Path'	=>	&$this->sender_email_address,
-				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , $_SERVER['SERVER_NAME']),
+				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , HTTP_HOST),
 				
 			));
 			
