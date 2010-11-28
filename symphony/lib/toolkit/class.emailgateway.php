@@ -71,7 +71,6 @@
 		public function __construct(){
 			// Merge headers with dynamic headers.
 			$this->headers = array_merge($this->headers, Array(
-				'Return-Path'	=>	&$this->sender_email_address,
 				'Message-ID'	=>	sprintf('<%s@%s>', md5(uniqid()) , HTTP_HOST),
 				
 			));
