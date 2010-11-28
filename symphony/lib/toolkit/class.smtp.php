@@ -1,6 +1,4 @@
 <?php
-	
-	require_once('class.emailhelper.php');
 	/**
 	 * @package toolkit
 	 */
@@ -103,7 +101,7 @@
 		 * right before the actual email is sent. This is to make sure the connection does not time out.
 		 *
 		 * @param string $from
-		 *	The from string. Should have the following format: Name <email@domain.tld>
+		 *	The from string. Should have the following format: email@domain.tld
 		 * @param string $to
 		 *	The email address to send the email to.
 		 * @param string $subject
@@ -132,7 +130,7 @@
 		}
 		
 		/**
-		 * Sets a header to be sent in the email. The TO header can be passed an array for its value.
+		 * Sets a header to be sent in the email.
 		 *
 		 * @param string $header
 		 * @param string $value
@@ -140,17 +138,7 @@
 		 */
 		public function setHeader($header, $value){
 			if(is_array($value)){
-				if(strtoupper($header) != 'TO'){
-					throw new SMTPException('Only TO can accept array values.');
-				}
-				else{
-					foreach($value as $i => $val){
-						$value[$i] = EmailHelper::qpEncodeHeader($val, 'UTF-8');
-					}
-				}
-			}
-			else{
-				$value = EmailHelper::qpEncodeHeader($value, 'UTF-8');
+				throw new SMTPException('Headers can only contain strings');
 			}
 			$this->_headers[$header] = $value;
 		}
@@ -194,7 +182,6 @@
 		 * @return void
 		 */
 		public function mail($from){
-			$from = EmailHelper::qpEncodeHeader($from, 'UTF-8');
 			if(!is_resource($this->_connection)){
 				throw new SMTPException('No connection to a server present');
 			}
@@ -222,7 +209,6 @@
 		 * @return void
 		 */
 		public function rcpt($to){
-			$to = EmailHelper::qpEncodeHeader($to, 'UTF-8');
 			if(!is_resource($this->_connection)){
 				throw new SMTPException('No connection to a server present');
 			}
@@ -274,7 +260,7 @@
 				if(strpos($line, '.') === 0){
 					$line = '.' . $line;
 				}
-				$this->_send(EmailHelper::qpEncodeBodyPart($line, 'UTF-8'));
+				$this->_send($line);
 			}
 			
 			$this->_send('.');

@@ -7,19 +7,18 @@
 	
 		protected $_headers = Array(
 		);
-
-		public function __construct(){
-			parent::__construct();
-			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_sendmail') ? Symphony::Configuration()->get('default_from_address', 'email_sendmail') : 'noreply@' . HTTP_HOST);
-			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_sendmail') ? Symphony::Configuration()->get('default_from_name', 'email_sendmail') : 'Symphony');
-		}
-
+		
 		public function about(){
 			return array(
 				'name' => 'Sendmail (default)',
 			);
 		}
 
+		public function __construct(){
+			parent::__construct();
+			$this->setSenderEmailAddress(Symphony::Configuration()->get('default_from_address', 'email_sendmail') ? Symphony::Configuration()->get('default_from_address', 'email_sendmail') : 'noreply@' . HTTP_HOST);
+			$this->setSenderName(Symphony::Configuration()->get('default_from_name', 'email_sendmail') ? Symphony::Configuration()->get('default_from_name', 'email_sendmail') : 'Symphony');
+		}
 
 		public function send(){
 
@@ -40,7 +39,7 @@
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
 			
-			foreach($this->recipient as $to){
+			foreach($this->recipients as $to){
 				$result = @mail($to, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 				if($result !== true){
 					throw new EmailGatewayException('Email failed to send. Please check input and make sure php is not running in safe mode.');
