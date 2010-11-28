@@ -115,7 +115,7 @@
 				throw new EmailValidationException('Sender Email Address can not contain cariage return or newlines.');
 			}
 			$this->sender_email_address = $email;
-			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
+			// $this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
 		}
 		
 		/**
@@ -130,7 +130,7 @@
 				throw new EmailValidationException('Sender Name can not contain cariage return or newlines.');
 			}
 			$this->sender_name = $name;
-			$this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
+			// $this->appendHeader('From', $this->sender_name . ' <' . $this->sender_email_address . '>');
 		}
 		
 		/**
@@ -146,8 +146,8 @@
 				$email = Array($email);
 			}
 			$this->recipients = $email;
-			$to_header = EmailHelper::arrayToList($email);
-			$this->appendHeader('To', $to_header);
+			// $to_header = EmailHelper::arrayToList($email);
+			// $this->appendHeader('To', $to_header);
 		}
 		
 		
@@ -173,7 +173,7 @@
 		public function setSubject($subject){
 			//TODO: sanitizing and security checking;
 			$this->subject = $subject;
-			$this->appendHeader('Subject', $this->subject);
+			// $this->appendHeader('Subject', $this->subject);
 		}
 		
 		/**
