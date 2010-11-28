@@ -11,6 +11,8 @@
 	 * A manager to standardize the finding and listing of installed gateways.
 	 */
     Class EmailGatewayManager extends Manager{
+		
+		protected $_default_gateway = 'sendmail';
 
 		/**
 		 * Sets the default gateway.
@@ -41,7 +43,7 @@
 				return $gateway;
 			}
 			else{
-				throw new EmailGatewayManagerException('The default gateway has not been set.');
+				return $this->_default_gateway;
 			}
 		}
 

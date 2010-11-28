@@ -194,7 +194,7 @@
 			// To fix the issue with checkboxes that do not send a value when unchecked.
 			$group->appendChild(Widget::Input('settings[email_smtp][auth]', '0', 'hidden'));
 			$input = Widget::Input('settings[email_smtp][auth]', '1', 'checkbox');
-			if($this->_auth = true) $input->setAttribute('checked', 'checked');
+			if($this->_auth == true) $input->setAttribute('checked', 'checked');
 			$label->setValue($input->generate() . ' Requires authentication');
 			$group->appendChild($label);			
 			

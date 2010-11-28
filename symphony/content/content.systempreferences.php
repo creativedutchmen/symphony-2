@@ -74,7 +74,7 @@
 				$select = Widget::Select('settings[Email][default_gateway]', $options);
 				$label->appendChild($select);
 				$group->appendChild($label);
-				$group->appendChild(new XMLElement('p', __('The core will use this gateway to send email. More gateways can be installed using extensions.'), array('class' => 'help')));
+				$group->appendChild(new XMLElement('p', __('The Symphony core will use the selected gateway to send emails. More gateways can be installed using extensions, and any gateway may be used by custom events or extensions.'), array('class' => 'help')));
 				// Append email gateway selection
 				$this->Form->appendChild($group);
 			}
