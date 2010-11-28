@@ -1,6 +1,5 @@
 /**
- * SYMPHONY
- * Administration
+ * Symphony Core JavaScript
  *
  * @version 2.2.0dev
  */
@@ -12,31 +11,30 @@ var Symphony = {};
 
 (function($) {
 
-/*-----------------------------------------------------------------------------
-	Symphony object
------------------------------------------------------------------------------*/
-
+	/**
+	 * The Symphony object provides language, message and context management.
+	 */
 	Symphony = {
 	
-		// Initialize Symphony
+		/**
+		 * Initialize the Symphony object
+		 */
 		init: function() {
 			var html = $('html'),
-				user = $('#usr li:first a'),
-				url = window.location.href.match('(.*)/symphony/(.*)');
+				user = $('#usr li:first a');
 			
 			// Set JavaScript status
 			$(document.documentElement).addClass('active');
 
-			// Set user information
-			Symphony.User.fullname = user.text();
-			Symphony.User.name = user.attr('name');
-			Symphony.User.type = user.attr('class');
-			Symphony.User.id = user.attr('id').substring(4);
-			
-			// Set context
-			Symphony.Context.lang = html.attr('lang');
-			Symphony.Context.root = url[1];
-			Symphony.Context.area = url[2].split('/')[0];
+			// Set basic context information
+			Symphony.Context.add('user', {
+				fullname: user.text(),
+				name: user.attr('name'),
+				type: user.attr('class'),
+				id: user.attr('id').substring(4)
+			});
+			Symphony.Context.add('lang', html.attr('lang'));
+			Symphony.Context.add('root', window.location.href.match('(.*)/symphony')[1]);
 
 			// Initialise language
 			Symphony.Language.add({
@@ -57,54 +55,174 @@ var Symphony = {};
 				'about {$hours} hours ago': false
 			});
 			
-			// Ensure backward compatibility
-			Symphony.WEBSITE = Symphony.Context.root;
-			Symphony.Language.NAME = Symphony.Context.lang;
+			/**
+			 * Ensure backwards compatibility
+			 *
+			 * @deprecated The following variables will be removed in future Symphony versions
+			 */
+			Symphony.WEBSITE = Symphony.Context.get('root');
+			Symphony.Language.NAME = Symphony.Context.get('lang');
+		},
+		
+		/**
+		 * The Context object contains general information about the system, 
+		 * the backend, the current user. It includes an add and a get function. 
+		 */
+		Context: {
+		
+			/**
+			 * @var object Storage object
+			 *
+			 * This object is private, use Symphony.Context.add() and 
+			 * Symphony.Context.get() to interact with the dictionary. 
+			 */
+			Storage: {},
+			
+			/**
+			 * Add data to the Context object
+			 *
+			 * @param string group
+			 *  Name of the data group
+			 * @param mixed values
+			 *  Object or string to be stored
+			 */
+			add: function(group, values) {
+			
+				// Add new group
+				if(!Symphony.Context.Storage[group]) {
+					Symphony.Context.Storage[group] = values;
+				}
+				
+				// Extend existing group
+				else {
+					Symphony.Context.Storage[group] = $.extend(Symphony.Context.Storage[group], values);
+				}
+			},
+			
+			/**
+			 * Get data from the Context object
+			 *
+			 * @param string group
+			 *  Name of the group to be returned
+			 */
+			get: function(group) {
+			
+				// Return full context, if no group is set
+				if(!group) {
+					return Symphony.Context.Storage; 
+				}
+				
+				// Return context group
+				else {
+					return Symphony.Context.Storage[group];
+				}
+			}
+				
 		},
 
-		// Language management
+		/**
+		 * The Language object stores the dictionary with all needed translations.
+		 * It offers public functions to add strings and get their translation and 
+		 * it offers private functions to handle variables and get the translations via
+		 * an synchronous AJAX request.
+		 */
 		Language: {
+		
+			/**
+			 * @var object Dictionary object
+			 *
+			 * This object is private, use Symphony.Language.add() to add and Symphony.Language.get()
+			 * to interact with the dictionary. 
+			 */
 			Dictionary: {},
-			get: function(string, tokens) {
+			
+			/**
+			 * Add strings to the Dictionary
+			 *
+			 * @param object strings
+			 *  Object with English string as key, value should be false
+			 */
+			add: function(strings) {
+			
+				// Set key as value
+				$.each(strings, function(key, value) {
+					strings[key] = key;
+				});
+				
+				// Save English strings
+				if(Symphony.Context.get('lang') == 'en') {
+					Symphony.Language.Dictionary = $.extend(Symphony.Language.Dictionary, strings);
+				}
+				
+				// Translate strings
+				else {
+					Symphony.Language.translate(strings);
+				}
+			},
+			
+			/**
+			 * Get translated string from the Dictionary.
+			 * The function replaces variables like {$name} with the a specified value if
+			 * an object of inserts is passed in the function call.
+			 *
+			 * @param string string
+			 *  English string to be translated
+			 * @param object inserts
+			 *  Object with variable name and value pairs
+			 * @return string
+			 *  Returns the translated string
+			 */
+			get: function(string, inserts) {
+			
 				// Get translated string
 				translatedString = Symphony.Language.Dictionary[string];
 
 				// Return string if it cannot be found in the dictionary
 				if(translatedString !== false) string = translatedString;
 					
-				// Insert tokens
-				if(tokens !== undefined) string = Symphony.Language.insert(string, tokens);
+				// Insert variables
+				if(inserts !== undefined) string = Symphony.Language.insert(string, inserts);
 				
 				// Return translated string
 				return string;
 			},
-			insert: function(string, tokens) {
-				// Replace tokens
-				$.each(tokens, function(index, value) { 
+			
+			/**
+			 * This private function replaces variables with a specified value.
+			 * It should not be called directly.
+			 *
+			 * @param string string
+			 *  Translated string with variables
+			 * @param object inserts
+			 *  Object with variable name and value pairs
+			 * @return string
+			 *  Returns translated strings with all variables replaced by their actual value
+			 */
+			insert: function(string, inserts) {
+			
+				// Replace variables
+				$.each(inserts, function(index, value) { 
 					string = string.replace('{$' + index + '}', value);
 				});
 				return string;
 			},
-			add: function(strings) {
-				// Set key as value
-				$.each(strings, function(key, value) {
-					strings[key] = key;
-				});
-				// Save English strings
-				if(Symphony.Context.lang == 'en') {
-					Symphony.Language.Dictionary = $.extend(Symphony.Language.Dictionary, strings);
-				}
-				// Translate strings
-				else {
-					Symphony.Language.translate(strings);
-				}
-			},
+			
+			/**
+			 * This private function sends a synchronous AJAX request to fetch the translations
+			 * for the English strings in the dictionary. It should not be called directly
+			 *
+			 * @param object strings
+			 *  Object of strings to be translated
+			 * @return object
+			 *  Object with original string and translation pairs
+			 */
 			translate: function(strings) {
+			
 				// Load translations synchronous
 				$.ajax({
 					async: false,
 					type: 'GET',
-					url: Symphony.Context.root + '/symphony/ajax/translate',
+					url: Symphony.Context.get('root') + '/symphony/ajax/translate',
 					data: strings,
 					dataType: 'json',
 					success: function(result) {
@@ -115,24 +233,62 @@ var Symphony = {};
 					}
 				});
 			}
+			
 		},
 		
-		// Symphony messages
+		/**
+		 * The message object handles system messages that should be displayed on the fly.
+		 * It offers a post and a clear function to set and remove messages. Absolute dates 
+		 * and times will be replaced by a representation relative to the user's system time.
+		 */
 		Message: {
+			
+			/**
+			 * @var array Message queue
+			 *
+			 * This array is private and should not be accessed directly.
+			 */
+			Queue: [],
+		
+			/**
+			 * Post system message
+			 *
+			 * @param string message
+			 *  Message to be shown
+			 * @param string type
+			 *  Message type to be used as class name
+			 */
 			post: function(message, type) {
-				this.queue = this.queue.concat($('#notice').remove().get()); // Store previous message
 
+				// Store previous message
+				Symphony.Message.Queue = Symphony.Message.Queue.concat($('#notice').remove().get());
+
+				// Add new message
 				$('h1').before('<div id="notice" class="' + type + '">' + message + '</div>');
 			},
+			
+			/**
+			 * Clear message by type
+			 *
+			 * @param string type
+			 *  Message type
+			 */
 			clear: function(type) {
-				$('#notice.' + type).remove();
+				var message = $('#notice');
+				
+				// Remove messages of specified type
+				message.filter('.' + type).remove();
+				Symphony.Message.Queue = $(Symphony.Message.Queue).filter(':not(.' + type + ')').get();
 
-				this.queue = $(this.queue).filter(':not(.' + type + ')').get();
-
-				if (document.getElementById('notice') === null && this.queue.length > 0) {
-					$(this.queue.pop()).insertBefore('h1'); // Show previous message
+				// Show previous message
+				if(message.size() > 0 && Symphony.Message.Queue.length > 0) {
+					$(Symphony.Message.Queue.pop()).insertBefore('h1'); 
 				}
 			},
+			
+			/**
+			 * Fade message highlight color to grey
+			 */
 			fade: function() {
 				$('#notice.success').animate({
 					backgroundColor: '#e4e4e0',
@@ -143,28 +299,51 @@ var Symphony = {};
 					$(this).removeClass('success');
 				});
 			},
+			
+			/**
+			 * Convert absolute message time to relative time and update continuously 
+			 */
 			timer: function() {
 				var time = Date.parse($('abbr.timeago').attr('title'));
 				var from = new Date;
 				from.setTime(time);
+				
+				// Set relative time
 				$('abbr.timeago').text(this.distance(from, new Date));
+				
+				// Update continuously
 				window.setTimeout("Symphony.Message.timer()", 60000);
 			},
+			
+			/**
+			 * Calculate relative time.
+			 *
+			 * @param Date from
+			 *  Starting date
+			 * @param Date to
+			 *  Current date
+			 */
   			distance: function(from, to) {
+  			
+  				// Calculate time difference
   				var distance = to - from;
+  				
+  				// Convert time to minutes
 				var time = Math.floor(distance / 60000);
-				if (time < 1) { 
+				
+				// Return relative date based on passed time
+				if(time < 1) { 
 					return Symphony.Language.get('just now'); 
 				}
-				if (time < 2) { 
+				if(time < 2) { 
 					return Symphony.Language.get('a minute ago'); 
 				}
-				if (time < 45) { 
+				if(time < 45) { 
 					return Symphony.Language.get('{$minutes} minutes ago', {
 						'minutes': time
 					}); 
 				}
-				if (time < 90) { 
+				if(time < 90) { 
 					return Symphony.Language.get('about 1 hour ago'); 
 				}
 				else { 
@@ -172,24 +351,32 @@ var Symphony = {};
 						'hours': Math.floor(time / 60)
 					}); 
 				}
-			},
-			queue: []
-		},
-
-		// User information
-		User: {},
-		
-		// Context information
-		Context: {},
+			}
 			
-		// Extensions
-		Extensions: {}
-		
+		}
+				
 	};
 	
-	// Initialise Symphony
+	/**
+	 * Symphony core functionalities
+	 */
 	$(document).ready(function() {
+	
+		// Initialize Symphony
 		Symphony.init();
+		
+		// Tags
+		$('.tags').symphonyTags();
+		
+		// Duplicators
+		$('.filters-duplicator').symphonyDuplicator();
+		$('#fields-duplicator').symphonyDuplicator({
+			orderable: true
+		});
+		
+		// Pickers
+		$('.picker').symphonyPicker();
+		
 	});
 	
 
@@ -273,7 +460,7 @@ var Symphony = {};
 
 		$.ajax({
 			type: 'POST',
-			url: Symphony.Context.root + '/symphony/ajax/reorder' + location.href.slice(Symphony.Context.root.length + 9),
+			url: Symphony.Context.get('root') + '/symphony/ajax/reorder' + location.href.slice(Symphony.Context.get('root').length + 9),
 			data: $('input', this).map(function(i) { return this.name + '=' + i; }).get().join('&'),
 			success: function() {
 				Symphony.Message.clear('reorder');
@@ -318,49 +505,6 @@ var Symphony = {};
 		}
 		
 		return false;
-	});
-
-	// Suggestion lists
-	$('.tags > li').live('click', function() {
-		var list = $(this.parentNode);
-		var input = list.prev().find('input')[0];
-		var tag = this.className || $(this).text();
-		
-		input.focus();
-		
-		if (list.hasClass('singular')) {
-			input.value = tag;
-		} else if(list.hasClass('inline')) {
-			var start = input.selectionStart;
-			var end = input.selectionEnd;
-			
-			if(start >= 0) {
-			  input.value = input.value.substring(0, start) + tag + input.value.substring(end, input.value.length);
-			} else {
-			  input.value += tag;
-			}
-			
-			input.selectionStart = start + tag.length;
-			input.selectionEnd = start + tag.length;
-		} else {
-			var exp = new RegExp('^' + tag + '$', 'i');
-			var tags = input.value.split(/,\s*/);
-			var removed = false;
-			
-			for (var index in tags) {
-				if (tags[index].match(exp)) {
-					tags.splice(index, 1);
-					removed = true;
-					
-				} else if (tags[index] == '') {
-					tags.splice(index, 1);
-				}
-			}
-			
-			if (!removed) tags.push(tag);
-			
-			input.value = tags.join(', ');
-		}
 	});
 
 	// Document ready
@@ -449,11 +593,7 @@ var Symphony = {};
 		});
 
 		$('textarea').blur();
-		
-		// Internal duplicators:
-		$('#fields-duplicator').symphonyDuplicator({ orderable: true });
-		$('.filters-duplicator').symphonyDuplicator();
-		
+				
 		// Repeating sections
 		$('div.subsection').each(function() {
 			var m = $(this),
@@ -551,35 +691,6 @@ var Symphony = {};
 			$(this).parent().html(html.replace(Symphony.Language.get('at') + ' ', ''));
 		});
 		Symphony.Message.timer();
-
-		/**
-		 * Selection picker, show and hide elements based on select box values
-		 */
-		var pickers = $('.picker');
-		var selectables = $('.selectable');
-		
-		pickers.each(function() {
-			var picker = $(this);
-			var select = picker.find('select');
-			var options = select.find('option');
-
-			// Multiple items
-			if(options.size() > 1) {
-				options.each(function() {
-					selectables.filter('#' + $(this).val()).hide();
-				});
-				select.click(function() {
-					selectables.hide().filter('#' + $(this).val()).show();
-				}).click();
-			}
-			
-			// Single item
-			else {
-				picker.hide();
-				selectables.filter('#' + select.val()).removeClass('selectable');
-			}
-
-		});
 		
 	});
 	
