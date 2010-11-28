@@ -24,21 +24,24 @@
 
 			$this->validate();
 
-			$this->subject = EmailHelper::qpEncodeHeader($this->subject, 'UTF-8');
-			$this->sender_name = EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8');
+			$this->subject = @wordwrap(EmailHelper::qpEncodeHeader($this->subject, 'UTF-8'), 75, "\r\n ");
+			// $this->appendHeader('Return-path', '001@imacoda.com'); // no way to set the return-path... will be overwritten
+			$this->appendHeader('From', EmailHelper::qpEncodeHeader($this->sender_name, 'UTF-8') . ' <' . $this->sender_email_address . '>');
 
 			foreach ($this->headers as $header => $value) {
 				$headers[] = sprintf('%s: %s', $header, $value);
 			}
+			// die(print_r($headers));
 
-			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
-			$this->message = str_replace("\r\n", "\n", $this->message);
-
+			$to_array = array();
 			foreach($this->recipients as $name => $address){
 				$to_array[EmailHelper::qpEncodeHeader($name)] = $address;
 			}
 			$to_header = EmailHelper::arrayToList($to_array);
 			
+			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
+			$this->message = str_replace("\r\n", "\n", $this->message);
+
 			$result = @mail($to_header, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 
 			if($result !== true){
