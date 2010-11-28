@@ -33,6 +33,11 @@
 
 			$this->message = EmailHelper::qpEncodeBodyPart($this->message);
 			$this->message = str_replace("\r\n", "\n", $this->message);
+
+			foreach($this->recipients as $name => $address){
+				$to_array[EmailHelper::qpEncodeHeader($name)] = $address;
+			}
+			$to_header = EmailHelper::arrayToList($to_array);
 			
 			$result = @mail($to_header, $this->subject, $this->message, @implode("\r\n", $headers) . "\r\n", "-f{$this->sender_email_address}");
 
