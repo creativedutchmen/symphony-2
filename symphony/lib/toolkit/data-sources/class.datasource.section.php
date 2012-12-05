@@ -303,7 +303,7 @@
 			}
 
 			foreach($this->dsParamFILTERS as $field_id => $filter) {
-				if (trim($filter) == '') continue;
+				if((is_array($filter) && empty($filter)) || trim($filter) == '') continue;
 
 				if(!is_array($filter)) {
 					$filter_type = $this->__determineFilterType($filter);
@@ -311,10 +311,7 @@
 					$value = array_map('trim', $value);
 					$value = array_map(array('Datasource', 'removeEscapedCommas'), $value);
 				}
-				else {
-					$value = $filter;
-				}
-				if (is_array($value) && empty($value)) continue;
+				else $value = $filter;
 
 				if(!in_array($field_id, self::$_system_parameters) && $field_id != 'id' && !(self::$_fieldPool[$field_id] instanceof Field)){
 					throw new Exception(
@@ -332,7 +329,7 @@
 						$c = 'NOT IN';
 					}
 
-					$where .= " AND `e`.id " . $c . " (".implode(", ", $value).") ";
+					$where .= " AND `e`.id " . $c . " (".intval(implode(", ", $value)).") ";
 				}
 				else if($field_id === 'system:creation-date' || $field_id === 'system:modification-date' || $field_id === 'system:date') {
 					require_once(TOOLKIT . '/fields/field.date.php');
