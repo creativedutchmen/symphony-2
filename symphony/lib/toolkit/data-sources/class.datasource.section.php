@@ -303,7 +303,7 @@
 			}
 
 			foreach($this->dsParamFILTERS as $field_id => $filter) {
-				if((is_array($filter) && empty($filter)) || trim($filter) == '') continue;
+				if (trim($filter) == '') continue;
 
 				if(!is_array($filter)) {
 					$filter_type = $this->__determineFilterType($filter);
@@ -311,7 +311,10 @@
 					$value = array_map('trim', $value);
 					$value = array_map(array('Datasource', 'removeEscapedCommas'), $value);
 				}
-				else $value = $filter;
+				else {
+					$value = $filter;
+				}
+				if (is_array($value) && empty($value)) continue;
 
 				if(!in_array($field_id, self::$_system_parameters) && $field_id != 'id' && !(self::$_fieldPool[$field_id] instanceof Field)){
 					throw new Exception(
