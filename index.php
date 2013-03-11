@@ -1,9 +1,7 @@
 <?php
 
 	define('DOCROOT', rtrim(dirname(__FILE__), '\\/'));
-	define('PATH_INFO', isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : NULL);
-	define('DOMAIN_PATH', dirname(rtrim($_SERVER['PHP_SELF'], PATH_INFO)));
-	define('DOMAIN', rtrim(rtrim($_SERVER['HTTP_HOST'], '\\/') . DOMAIN_PATH, '\\/'));
+	define('DOMAIN', rtrim(rtrim($_SERVER['HTTP_HOST'], '\\/') . dirname($_SERVER['PHP_SELF']), '\\/'));
 
 	require(DOCROOT . '/symphony/lib/boot/bundle.php');
 
@@ -19,20 +17,56 @@
 			? 'administration'
 			: 'frontend');
 
+	header('Expires: Mon, 12 Dec 1982 06:14:00 GMT');
+	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+	header('Cache-Control: no-cache, must-revalidate, max-age=0');
+	header('Pragma: no-cache');
+
 	$output = renderer($renderer)->display(getCurrentPage());
 
+	/*
+		Lazy Cookie Setter; only sets session cookies when needed.
+		This will improve the interoperability with caches like Varnish and Squid.
+
+		Unfortunately there is no way to delete a specific previously set cookie from PHP.
+		The only way seems to be the method employed here: store all the cookie we need to keep, then delete every cookie and add the stored cookies again.
+		Luckily we can just store the raw header and output them again, so we do not need to actively parse the header string.
+	*/
+
 	$cookie_params = session_get_cookie_params();
-	if(empty($_SESSION[__SYM_COOKIE_PREFIX_])) {
-		if(empty($_COOKIE[session_name()])) {
-			header_remove('Set-Cookie');
-		}
-		else {
-			setcookie(session_name(),session_id(),time()-3600, $cookie_params['path'], $cookie_params['domain'], $cookie_params['secure'], $cookie_params['httponly']);
+	$list = headers_list();
+	$custom_cookies = array();
+
+	foreach ($list as $hdr) {
+		if ((stripos($hdr, 'Set-Cookie') !== FALSE) && (stripos($hdr, session_id()) === FALSE)) {
+			$custom_cookies[] = $hdr;
 		}
 	}
-	else {
-		header_remove('Set-Cookie');
-		setcookie(session_name(),session_id(),time() + TWO_WEEKS, $cookie_params['path'], $cookie_params['domain'], $cookie_params['secure'], $cookie_params['httponly']);
+	header_remove('Set-Cookie');
+	foreach ($custom_cookies as $custom_cookie) {
+		header($custom_cookie);
+	}
+	if (empty($_SESSION[__SYM_COOKIE_PREFIX_]) && !empty($_COOKIE[session_name()])) {
+		setcookie(
+			session_name(),
+			session_id(),
+			time() - 3600,
+			$cookie_params['path'],
+			$cookie_params['domain'],
+			$cookie_params['secure'],
+			$cookie_params['httponly']
+		);
+	}
+	elseif(!empty($_SESSION[__SYM_COOKIE_PREFIX_])) {
+		setcookie(
+			session_name(),
+			session_id(),
+			time() + TWO_WEEKS,
+			$cookie_params['path'],
+			$cookie_params['domain'],
+			$cookie_params['secure'],
+			$cookie_params['httponly']
+		);
 	}
 
 	echo $output;
