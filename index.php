@@ -21,6 +21,20 @@
 
 	$output = renderer($renderer)->display(getCurrentPage());
 
+	$cookie_params = session_get_cookie_params();
+	if(empty($_SESSION[__SYM_COOKIE_PREFIX_])) {
+		if(empty($_COOKIE[session_name()])) {
+			header_remove('Set-Cookie');
+		}
+		else {
+			setcookie(session_name(),session_id(),time()-3600, $cookie_params['path'], $cookie_params['domain'], $cookie_params['secure'], $cookie_params['httponly']);
+		}
+	}
+	else {
+		header_remove('Set-Cookie');
+		setcookie(session_name(),session_id(),time() + TWO_WEEKS, $cookie_params['path'], $cookie_params['domain'], $cookie_params['secure'], $cookie_params['httponly']);
+	}
+
 	echo $output;
 
 	exit;
