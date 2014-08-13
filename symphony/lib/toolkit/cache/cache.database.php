@@ -31,9 +31,14 @@ class CacheDatabase implements iCache
      *  An instance of the MySQL class to store the cached
      *  data in.
      */
-    public function __construct(MySQL $Database)
+    public function __construct(MySQL $Database = null)
     {
-        $this->Database = $Database;
+        if is_null($Database) {
+            $this->Database = Symphony::Database();
+        }
+        else {
+            $this->Database = $Database;
+        }
     }
 
     /**
