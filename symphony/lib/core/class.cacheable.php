@@ -5,39 +5,31 @@
  */
 
  /**
-  * The Cacheable class is used to store data in the dedicated Symphony
-  * cache table. It is used by Symphony for Session management and by
-  * the Dynamic XML datasource, but it can be used by extensions to store
-  * anything. The cache table is `tbl_cache`
+  * The Cacheable class is used to store data in the cache provided by a provider.
+  * It can be used by extensions and the core to store frequently accessed pieces of data.
   */
-require_once TOOLKIT . '/cache/cache.database.php';
 
 class Cacheable
 {
     /**
-     * An instance of the MySQL class to communicate with `tbl_cache`
-     * which is where the cached data is stored.
+     * An instance of the Cache provider class to communicate with the cache.
      *
      * @var iCache
      */
     private $cacheProvider = null;
 
     /**
-     * The constructor for the Cacheable takes an instance of the
-     * MySQL class and assigns it to `$this->Database`
-     *
      * @param iCache $cacheProvider
-     *  An instance of the MySQL class to store the cached
-     *  data in.
+     *  An instance of a cacheprovider. This provider will be used for data storage.
      */
-    public function __construct($cacheProvider)
+    public function __construct(iCache $cacheProvider = null)
     {
-        if (($cacheProvider instanceof MySQL)) {
-            $cache = new CacheDatabase($cacheProvider);
-            $this->cacheProvider = $cache;
-        } else {
-            $this->cacheProvider = $cacheProvider;
+        if (is_null($cacheProvider)) {
+            $default_provider = Symphony::Configuration()->get('default', 'cache_driver');
+            // TO DO
+            $cacheProvider = CacheProviderManager::create($default_provider);
         }
+        $this->cacheProvider = $cacheProvider;
     }
 
     /**
@@ -52,14 +44,12 @@ class Cacheable
     }
 
     /**
-     * This function will compress data for storage in `tbl_cache`.
+     * This function will compress data for storage in the cache store.
      * It is left to the user to define a unique hash for this data so that it can be
      * retrieved in the future. Optionally, a `$ttl` parameter can
      * be passed for this data. If this is omitted, it data is considered to be valid
-     * forever. This function utilizes the Mutex class to act as a crude locking
-     * mechanism.
+     * forever.
      *
-     * @see toolkit.Mutex
      * @param string $hash
      *  The hash of the Cached object, as defined by the user
      * @param string $data
@@ -77,7 +67,7 @@ class Cacheable
 
     /**
      * Given the hash of a some data, check to see whether it exists in
-     * `tbl_cache`. If no cached object is found, this function will return
+     * the cache store. If no cached object is found, this function will return
      * false, otherwise the cached object will be returned as an array.
      *
      * @param string $hash
@@ -93,12 +83,9 @@ class Cacheable
     }
 
     /**
-     * Given the hash of a cacheable object, remove it from `tbl_cache`
-     * regardless of if it has expired or not. If no $hash is given,
-     * this removes all cache objects from `tbl_cache` that have expired.
-     * After removing, the function uses the `__optimise` function
+     * Given the hash of a cacheable object, remove it from the cache
+     * regardless of if it has expired or not.
      *
-     * @see core.Cacheable#optimise()
      * @param string $hash
      *  The hash of the Cached object, as defined by the user
      */
