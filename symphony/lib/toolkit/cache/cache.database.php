@@ -80,7 +80,7 @@ class CacheDatabase implements iCache
      */
     public function read($hash)
     {
-        if ($c = $this->Database->fetchRow(0, "SELECT SQL_NO_CACHE * FROM `tbl_cache` WHERE `hash` = '$hash' AND (`expiry` IS NULL OR UNIX_TIMESTAMP() <= `expiry`) LIMIT 1")) {
+        if ($c = $this->Database->fetchRow(0, "SELECT * FROM `tbl_cache` WHERE `hash` = '$hash' AND (`expiry` IS NULL OR UNIX_TIMESTAMP() <= `expiry`) LIMIT 1")) {
             if (!$c['data'] = Cacheable::decompressData($c['data'])) {
                 $this->delete($hash);
 
