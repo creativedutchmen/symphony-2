@@ -100,10 +100,8 @@ class CacheDatabase implements iCache
      * It is left to the user to define a unique hash for this data so that it can be
      * retrieved in the future. Optionally, a `$ttl` parameter can
      * be passed for this data. If this is omitted, it data is considered to be valid
-     * forever. This function utilizes the Mutex class to act as a crude locking
-     * mechanism.
+     * forever.
      *
-     * @see toolkit.Mutex
      * @param string $hash
      *  The hash of the Cached object, as defined by the user
      * @param string $data
@@ -117,10 +115,6 @@ class CacheDatabase implements iCache
      */
     public function write($hash, $data, $ttl = null)
     {
-        if (!Mutex::acquire($hash, 2, TMP)) {
-            return false;
-        }
-
         $creation = time();
         $expiry = null;
 
@@ -134,10 +128,7 @@ class CacheDatabase implements iCache
             return false;
         }
 
-        $this->delete($hash);
-        $this->Database->insert(array('hash' => $hash, 'creation' => $creation, 'expiry' => $expiry, 'data' => $data), 'tbl_cache');
-
-        Mutex::release($hash, TMP);
+        $this->Database->insert(array('hash' => $hash, 'creation' => $creation, 'expiry' => $expiry, 'data' => $data), 'tbl_cache', true);
 
         return true;
     }
